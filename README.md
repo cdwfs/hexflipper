@@ -3,4 +3,4 @@ A territory-building game played on a hex map, created for [OST Jam](https://itc
 
 It will likely be unfinished.
 
-It will likely be based on @morgan3d's [quadplay](https://github.com/morgan3d/quadplay).
+It will likely be based on [@morgan3d](https://github.com/morgan3d)'s [quadplay](https://github.com/morgan3d/quadplay) virtual console
