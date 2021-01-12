@@ -1,0 +1,49 @@
+{
+    "title": "HexFlipper",
+    "developer": "Cort Stratton",
+    "copyright": "©2021 Cort Stratton",
+    "license": "Open source under the BSD 3-Clause license https://opensource.org/licenses/BSD-3-Clause",
+    "packages": [],
+    "scripts": [
+        "hex_grid.pyxl"
+    ],
+    "modes": [
+        "Play"
+    ],
+    "start_mode": "Play",
+    "docs": [],
+    "assets": {
+        "font": "quad://fonts/deja-8.font.json",
+        "game_board_map": "game_board.map.json",
+        "hex_sprite": "hex.sprite.json"
+    },
+    "version": 0,
+    "min_players": 1,
+    "max_players": 1,
+    "cooperative": false,
+    "competitive": false,
+    "achievements": false,
+    "highscores": false,
+    "description": "Description of your game in about 100 characters.",
+    "constants": {
+        "text_color": {
+            "type": "rgb",
+            "value": {
+                "r": {
+                    "type": "number",
+                    "value": 1
+                },
+                "g": {
+                    "type": "number",
+                    "value": 1
+                },
+                "b": {
+                    "type": "number",
+                    "value": 1
+                }
+            }
+        }
+    },
+    "screenshot_tag": "HexFlipper",
+    "y_up": false
+}

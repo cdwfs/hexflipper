@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.4" tiledversion="1.4.3" orientation="hexagonal" renderorder="left-down" width="14" height="11" tilewidth="32" tileheight="48" infinite="0" hexsidelength="0" staggeraxis="y" staggerindex="odd" nextlayerid="7" nextobjectid="1">
+ <properties>
+  <property name="sound" value="loop_escalator_sound"/>
+  <property name="title" value="[B00] Holy Moly"/>
+ </properties>
+ <tileset firstgid="1" name="hex-32x32" tilewidth="32" tileheight="32" tilecount="99" columns="9">
+  <image source="hex-32x32.png" width="288" height="352"/>
+ </tileset>
+ <layer id="5" name="Tile Layer 1" width="14" height="11">
+  <data encoding="csv">
+0,70,70,70,70,70,70,70,70,70,70,70,70,0,
+70,70,70,70,53,1,1,1,26,70,70,70,70,0,
+70,70,70,70,1,38,38,38,38,1,70,70,70,70,
+70,70,70,1,38,73,73,73,38,1,70,70,70,0,
+70,70,70,1,38,73,29,29,73,38,1,70,70,70,
+70,70,44,38,73,29,64,29,73,38,17,70,70,0,
+70,70,70,1,38,73,29,29,73,38,1,70,70,70,
+70,70,70,1,38,73,73,73,38,1,70,70,70,70,
+70,70,70,70,1,38,38,38,38,1,70,70,70,70,
+70,70,70,70,35,1,1,1,8,70,70,70,70,0,
+0,70,70,70,70,70,70,70,70,70,70,70,70,0
+</data>
+ </layer>
+</map>
