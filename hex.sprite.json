@@ -24,20 +24,86 @@
             "y": 3
         },
         "territory_p1": {
-            "x": 0,
-            "y": 4
+            "x": 1,
+            "y": 0
         },
         "territory_p2": {
             "x": 1,
-            "y": 4
+            "y": 1
         },
         "territory_p3": {
-            "x": 2,
-            "y": 4
+            "x": 1,
+            "y": 2
         },
         "territory_p4": {
-            "x": 3,
-            "y": 4
+            "x": 1,
+            "y": 3
+        },
+        "arrow_nw": {
+            "start": {
+                "x": 0,
+                "y": 4
+            },
+            "end": {
+                "x": 3,
+                "y": 4
+            },
+            "frames": 4,
+        },
+        "arrow_w": {
+            "start": {
+                "x": 0,
+                "y": 5
+            },
+            "end": {
+                "x": 3,
+                "y": 5
+            },
+            "frames": 4,
+        },
+        "arrow_sw": {
+            "start": {
+                "x": 0,
+                "y": 6
+            },
+            "end": {
+                "x": 3,
+                "y": 6
+            },
+            "frames": 4,
+        },
+        "arrow_ne": {
+            "start": {
+                "x": 4,
+                "y": 4
+            },
+            "end": {
+                "x": 7,
+                "y": 4
+            },
+            "frames": 4,
+        },
+        "arrow_e": {
+            "start": {
+                "x": 4,
+                "y": 5
+            },
+            "end": {
+                "x": 7,
+                "y": 5
+            },
+            "frames": 4,
+        },
+        "arrow_se": {
+            "start": {
+                "x": 4,
+                "y": 6
+            },
+            "end": {
+                "x": 7,
+                "y": 6
+            },
+            "frames": 4,
         },
     }
 }
