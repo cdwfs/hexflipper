@@ -7,10 +7,10 @@ let selection_sprite
 let player_count
 let all_player_hex_coords = [xy(1,9), xy(9,1), xy(5,1), xy(5,9)]
 const PLAYER_CLICK_SOUNDS = [
-    {sound:blip_05_sound, pan: -10%, volume: 100%, time:0.070},
-    {sound:blip_05_sound, pan: +10%, volume: 100%, time:0.076},
-    {sound:blip_05_sound, pan: -10%, volume: 100%, time:0.070},
-    {sound:blip_05_sound, pan: +10%, volume: 100%, time:0.076},
+    {sound:blip_05_sound, pan: -10%, volume: 100%},
+    {sound:blip_05_sound, pan: +10%, volume: 100%},
+    {sound:blip_05_sound, pan: -10%, volume: 100%},
+    {sound:blip_05_sound, pan: +10%, volume: 100%},
     ]
 const VALID_HEX_COORD_MASK = [
     0b0000000000000000,
