@@ -3,7 +3,6 @@ Play
 
 /** Clone of map for the game */
 let map
-let selection_sprite
 let player_count
 let all_player_hex_coords = [xy(1,9), xy(9,1), xy(5,1), xy(5,9)]
 const PLAYER_CLICK_SOUNDS = [
@@ -11,6 +10,12 @@ const PLAYER_CLICK_SOUNDS = [
     {sound:blip_07_sound, pan: +50%, volume: 100%},
     {sound:blip_05_sound, pan: -50%, volume: 100%},
     {sound:blip_07_sound, pan: +50%, volume: 100%},
+    ]
+const PLAYER_OVERLAY_SPRITES = [
+    hex_sprite.overlay_p1,
+    hex_sprite.overlay_p2,
+    hex_sprite.overlay_p3,
+    hex_sprite.overlay_p4,
     ]
 const VALID_HEX_COORD_MASK = [
     0b0000000000000000,
@@ -39,7 +44,6 @@ enter(player_info)
 ────────────────────────────────────────────────────────────────────────
 
 map = clone(game_board_map)
-selection_sprite = game_board_map.spritesheet.selection
 player_count = 2 // TODO: choose from 1-4 at title and pass via player_info
 
 set_transform(xy(-48, SCREEN_SIZE.y + 8), xy(1, -1))
@@ -54,6 +58,15 @@ set_transform(xy(0, SCREEN_SIZE.y), xy(1, -1))
 frame
 ────────────────────────────────────────────────────────────────────────
 
+// handle input
+for i < player_count:
+    const new_hex_coord = xy(all_player_hex_coords[i].x + gamepad_array[i].xx,
+        all_player_hex_coords[i].y + gamepad_array[i].yy)
+    if (VALID_HEX_COORD_MASK[new_hex_coord.y] & (1<<new_hex_coord.x)) ≠ 0:
+        all_player_hex_coords[i] = new_hex_coord;
+    if gamepad_array[i].aa:
+        play_sound(PLAYER_CLICK_SOUNDS[i])
+        
 draw_hex_map(map)
 
 // Old code to convert a world-space xy to hex-relative coordinates, and then to integer map coordinates
@@ -63,14 +76,6 @@ let select_map_coord = transform_hex_to_map_coord(nearest_hex(select_hex_pos))
 debug_watch(select_map_coord)
 */
 
-// handle input
-for i < player_count:
-    const new_hex_coord = xy(all_player_hex_coords[i].x + gamepad_array[i].xx,
-        all_player_hex_coords[i].y + gamepad_array[i].yy)
-    if (VALID_HEX_COORD_MASK[new_hex_coord.y] & (1<<new_hex_coord.x)) ≠ 0:
-        all_player_hex_coords[i] = new_hex_coord;
-    if gamepad_array[i].aa:
-        play_sound(PLAYER_CLICK_SOUNDS[i])
 // draw player locations
 for i < player_count:
-    draw_sprite_on_hex_map(selection_sprite, transform_hex_to_map_coord(all_player_hex_coords[i]))
+    draw_sprite_on_hex_map(PLAYER_OVERLAY_SPRITES[i], transform_hex_to_map_coord(all_player_hex_coords[i]))
