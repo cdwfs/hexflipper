@@ -15,7 +15,9 @@
     "assets": {
         "font": "quad://fonts/deja-8.font.json",
         "game_board_map": "game_board.map.json",
-        "hex_sprite": "hex.sprite.json"
+        "hex_sprite": "hex.sprite.json",
+        "blip_05_sound": "blip-05.sound.json",
+        "blip_07_sound": "blip-07.sound.json"
     },
     "version": 0,
     "min_players": 1,

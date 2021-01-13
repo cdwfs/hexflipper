@@ -6,6 +6,12 @@ let map
 let selection_sprite
 let player_count
 let all_player_hex_coords = [xy(1,9), xy(9,1), xy(5,1), xy(5,9)]
+const PLAYER_CLICK_SOUNDS = [
+    {sound:blip_05_sound, pan: -10%, volume: 100%, time:0.070},
+    {sound:blip_05_sound, pan: +10%, volume: 100%, time:0.076},
+    {sound:blip_05_sound, pan: -10%, volume: 100%, time:0.070},
+    {sound:blip_05_sound, pan: +10%, volume: 100%, time:0.076},
+    ]
 const VALID_HEX_COORD_MASK = [
     0b0000000000000000,
     0b0000001111100000,
@@ -63,6 +69,8 @@ for i < player_count:
         all_player_hex_coords[i].y + gamepad_array[i].yy)
     if (VALID_HEX_COORD_MASK[new_hex_coord.y] & (1<<new_hex_coord.x)) ≠ 0:
         all_player_hex_coords[i] = new_hex_coord;
+    if gamepad_array[i].aa:
+        play_sound(PLAYER_CLICK_SOUNDS[i])
 // draw player locations
 for i < player_count:
     draw_sprite_on_hex_map(selection_sprite, transform_hex_to_map_coord(all_player_hex_coords[i]))
