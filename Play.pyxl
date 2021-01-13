@@ -11,6 +11,12 @@ const PLAYER_CLICK_SOUNDS = [
     {sound:blip_05_sound, pan: -50%, volume: 100%},
     {sound:blip_07_sound, pan: +50%, volume: 100%},
     ]
+const PLAYER_TERRITORY_SPRITES = [
+    hex_sprite.territory_p1,
+    hex_sprite.territory_p2,
+    hex_sprite.territory_p3,
+    hex_sprite.territory_p4,
+    ]
 const PLAYER_OVERLAY_SPRITES = [
     hex_sprite.overlay_p1,
     hex_sprite.overlay_p2,
@@ -66,6 +72,7 @@ for i < player_count:
         all_player_hex_coords[i] = new_hex_coord;
     if gamepad_array[i].aa:
         play_sound(PLAYER_CLICK_SOUNDS[i])
+        map_set_sprite_by_hex(map, all_player_hex_coords[i], PLAYER_TERRITORY_SPRITES[i])
         
 draw_hex_map(map)
 
