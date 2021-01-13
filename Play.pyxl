@@ -4,6 +4,21 @@ Play
 /** Clone of map for the game */
 let map
 let selection_sprite
+let player_count
+let all_player_hex_coords = [xy(1,9), xy(9,1), xy(5,1), xy(5,9)]
+const VALID_HEX_COORD_MASK = [
+    0b0000000000000000,
+    0b0000001111100000,
+    0b0000001111110000,
+    0b0000001111111000,
+    0b0000001111111100,
+    0b0000001111111110,
+    0b0000000111111110,
+    0b0000000011111110,
+    0b0000000001111110,
+    0b0000000000111110,
+    0b0000000000000000,
+    ]
 
 
 // Draw a sprite at the provided map coordinates
@@ -14,13 +29,15 @@ def draw_sprite_on_hex_map(sprite, map_coord):
     draw_sprite(sprite, pos)    
 
 
-enter(player_info, in_game_type)
+enter(player_info)
 ────────────────────────────────────────────────────────────────────────
 
 map = clone(game_board_map)
 selection_sprite = game_board_map.spritesheet.selection
+player_count = 2 // TODO: choose from 1-4 at title and pass via player_info
 
-set_transform(xy(-16, SCREEN_SIZE.y + 8), xy(1, -1))
+set_transform(xy(-48, SCREEN_SIZE.y + 8), xy(1, -1))
+
 
 
 leave
@@ -31,11 +48,21 @@ set_transform(xy(0, SCREEN_SIZE.y), xy(1, -1))
 frame
 ────────────────────────────────────────────────────────────────────────
 
-// debug_watch(transform_ws_to_hex(touch.xy))
 draw_hex_map(map)
 
+// Old code to convert a world-space xy to hex-relative coordinates, and then to integer map coordinates
+/*
 let select_hex_pos = transform_ws_to_hex(touch.xy)
 let select_map_coord = transform_hex_to_map_coord(nearest_hex(select_hex_pos))
 debug_watch(select_map_coord)
-draw_sprite_on_hex_map(selection_sprite, select_map_coord)
+*/
 
+// handle input
+for i < player_count:
+    const new_hex_coord = xy(all_player_hex_coords[i].x + gamepad_array[i].xx,
+        all_player_hex_coords[i].y + gamepad_array[i].yy)
+    if (VALID_HEX_COORD_MASK[new_hex_coord.y] & (1<<new_hex_coord.x)) ≠ 0:
+        all_player_hex_coords[i] = new_hex_coord;
+// draw player locations
+for i < player_count:
+    draw_sprite_on_hex_map(selection_sprite, transform_hex_to_map_coord(all_player_hex_coords[i]))
