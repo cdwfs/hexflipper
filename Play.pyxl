@@ -86,6 +86,11 @@ def set_cell_owner_map_coord(map_coord, player_id):
 def set_cell_owner_hex_coord(hex_coord, player_id):
     set_cell_owner_map_coord(transform_hex_to_map_coord(hex_coord), player_id)
 
+// music playback
+let bgmusic
+let bgmusic2
+let bgmusic_start_time = 0
+
 enter(player_info)
 ────────────────────────────────────────────────────────────────────────
 
@@ -102,6 +107,11 @@ for x < size(map):
         new_col.push(if (VALID_HEX_COORD_MASK[hc.y] & (1<<hc.x)) ≠ 0 then -1 else -2)
     map_cell_owner.push(new_col)
 
+// Start music loops playing
+bgmusic = play_sound({sound:bgmusic_loop1_sound, loop:true})
+bgmusic2 = play_sound({sound:bgmusic_loop2_sound, volume:0%, loop:true})
+bgmusic_start_time = now()
+
 // random starting moves for each player
 for i < player_count:
     player_move_codes[i] = random_integer(0,63)
@@ -113,6 +123,24 @@ set_transform(xy(0, SCREEN_SIZE.y), xy(1, -1))
 
 frame
 ────────────────────────────────────────────────────────────────────────
+
+//
+// reactive-music stuff goes here
+//
+
+// yellow square in time with the beat
+let beat = floor((now()-bgmusic_start_time) / 0.2)
+let bim = beat % 12
+if bim == 0 or bim == 2 or bim == 4 or bim == 7 or bim == 10:
+    draw_corner_rect({corner:xy(100,100), size:xy(20,-20), color:#ff0, z:5})
+// switch between two active loops
+let measure = floor((now()-bgmusic_start_time) / 2.4)
+if (measure % 2) == 0:
+    set_volume(bgmusic, 100%)
+    set_volume(bgmusic2, 0%)
+else:
+    set_volume(bgmusic, 0%)
+    set_volume(bgmusic2, 100%)
 
 for i < player_count:
     // handle dpad input
