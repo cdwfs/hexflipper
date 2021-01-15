@@ -66,6 +66,17 @@ def draw_sprite_on_hex_map(sprite, map_coord):
         MUL(HEX_HEIGHT_75, map_coord.y))
     draw_sprite(sprite, pos)    
 
+// Per-cell owner info
+let map_cell_owner
+def get_cell_owner_map_coord(map_coord):
+    return map_cell_owner[map_coord.x][map_coord.y]
+def get_cell_owner_hex_coord(hex_coord):
+    return get_cell_owner_map_coord(transform_hex_to_map_coord(hex_coord))
+    
+def set_cell_owner_map_coord(map_coord, player_id):
+    map_cell_owner[map_coord.x][map_coord.y] = player_id
+def set_cell_owner_hex_coord(hex_coord, player_id):
+    set_cell_owner_map_coord(transform_hex_to_map_coord(hex_coord), player_id)
 
 enter(player_info)
 ────────────────────────────────────────────────────────────────────────
@@ -75,6 +86,13 @@ player_count = 2 // TODO: choose from 1-4 at title and pass via player_info
 
 set_transform(xy(-48, SCREEN_SIZE.y + 8), xy(1, -1))
 
+map_cell_owner = []
+for x < size(map):
+    let new_col = []
+    for y < size(map[x]):
+        let hc = transform_map_coord_to_hex(xy(x,y))
+        new_col.push(if (VALID_HEX_COORD_MASK[hc.y] & (1<<hc.x)) ≠ 0 then -1 else -2)
+    map_cell_owner.push(new_col)
 
 
 leave
@@ -94,6 +112,7 @@ for i < player_count:
     if gamepad_array[i].aa:
         play_sound(PLAYER_CLICK_SOUNDS[i])
         map_set_sprite_by_hex(map, all_player_hex_coords[i], PLAYER_TERRITORY_SPRITES[i])
+        set_cell_owner_hex_coord(all_player_hex_coords[i], i)
         
 
 // draw things
