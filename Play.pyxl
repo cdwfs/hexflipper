@@ -95,15 +95,8 @@ for i < player_count:
         play_sound(PLAYER_CLICK_SOUNDS[i])
         map_set_sprite_by_hex(map, all_player_hex_coords[i], PLAYER_TERRITORY_SPRITES[i])
         
+
+// draw things
 draw_hex_map(map)
-
-// Old code to convert a world-space xy to hex-relative coordinates, and then to integer map coordinates
-/*
-let select_hex_pos = transform_ws_to_hex(touch.xy)
-let select_map_coord = transform_hex_to_map_coord(nearest_hex(select_hex_pos))
-debug_watch(select_map_coord)
-*/
-
-// draw player locations
 for i < player_count:
     draw_sprite_on_hex_map(PLAYER_OVERLAY_SPRITES[i], transform_hex_to_map_coord(all_player_hex_coords[i]))
