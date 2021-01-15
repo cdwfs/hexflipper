@@ -44,7 +44,7 @@ const DIR_W  = 4
 const DIR_NW = 5
 const HEX_COORD_NEIGHBOR_OFFSETS = [
     xy(+0,+1), // NE
-    xy(+1,+1), // E
+    xy(+1,+0), // E
     xy(+1,-1), // SE
     xy(+0,-1), // SW
     xy(-1,+0), // W
