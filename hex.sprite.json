@@ -39,6 +39,10 @@
             "x": 1,
             "y": 3
         },
+        "territory_neutral": {
+            "x": 0,
+            "y": 7
+        },
         "arrow_nw": {
             "start": {
                 "x": 0,
@@ -48,7 +52,7 @@
                 "x": 3,
                 "y": 4
             },
-            "frames": 4,
+            "frames": 4
         },
         "arrow_w": {
             "start": {
@@ -59,7 +63,7 @@
                 "x": 3,
                 "y": 5
             },
-            "frames": 4,
+            "frames": 4
         },
         "arrow_sw": {
             "start": {
@@ -70,7 +74,7 @@
                 "x": 3,
                 "y": 6
             },
-            "frames": 4,
+            "frames": 4
         },
         "arrow_ne": {
             "start": {
@@ -81,7 +85,7 @@
                 "x": 7,
                 "y": 4
             },
-            "frames": 4,
+            "frames": 4
         },
         "arrow_e": {
             "start": {
@@ -92,7 +96,7 @@
                 "x": 7,
                 "y": 5
             },
-            "frames": 4,
+            "frames": 4
         },
         "arrow_se": {
             "start": {
@@ -103,7 +107,7 @@
                 "x": 7,
                 "y": 6
             },
-            "frames": 4,
-        },
+            "frames": 4
+        }
     }
 }

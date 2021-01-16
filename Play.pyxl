@@ -5,6 +5,8 @@ Play
 let map
 let player_count
 let all_player_hex_coords = [xy(1,9), xy(9,1), xy(5,1), xy(5,9)]
+const PLAYER_NEUTRAL = -1
+const INVALID_HEX = -2
 const PLAYER_CLICK_SOUNDS = [
     {sound:blip_05_sound, pan: -50%, volume: 100%},
     {sound:blip_07_sound, pan: +50%, volume: 100%},
@@ -77,15 +79,21 @@ def draw_sprite_on_hex_map(sprite, map_coord):
 
 // Per-cell owner info
 let map_cell_owner
+// Get the player ID of a map cell (PLAYER_NEUTRAL for unclaimed cells, INVALID_HEX for cells outside the play area)
 def get_cell_owner_map_coord(map_coord):
     return map_cell_owner[map_coord.x][map_coord.y]
 def get_cell_owner_hex_coord(hex_coord):
     return get_cell_owner_map_coord(transform_hex_to_map_coord(hex_coord))
-    
+// Change the owner of a cell (including swapping its sprite)
 def set_cell_owner_map_coord(map_coord, player_id):
     map_cell_owner[map_coord.x][map_coord.y] = player_id
+    set_map_sprite(map, map_coord,
+        if player_id == PLAYER_NEUTRAL then hex_sprite.territory_neutral else PLAYER_TERRITORY_SPRITES[player_id])
 def set_cell_owner_hex_coord(hex_coord, player_id):
     set_cell_owner_map_coord(transform_hex_to_map_coord(hex_coord), player_id)
+// Check whether a cell is within the play area
+def is_valid_board_hex(hex_coord):
+    return get_cell_owner_hex_coord(hex_coord) ≠ INVALID_HEX
 
 // Generate a move code. Not all moves are equally likely.
 def generate_move_code():
@@ -127,9 +135,12 @@ for x < size(map):
     let new_col = []
     for y < size(map[x]):
         let hc = transform_map_coord_to_hex(xy(x,y))
-        new_col.push(if (VALID_HEX_COORD_MASK[hc.y] & (1<<hc.x)) ≠ 0 then -1 else -2)
+        new_col.push(if (VALID_HEX_COORD_MASK[hc.y] & (1<<hc.x)) ≠ 0 then PLAYER_NEUTRAL else INVALID_HEX)
     map_cell_owner.push(new_col)
-
+// Players start on their own territory
+for i < player_count:
+    set_cell_owner_hex_coord(all_player_hex_coords[i], i)
+    
 // Start music loops playing
 bgmusic = play_sound({sound:bgmusic_loop1_sound, loop:true})
 bgmusic2 = play_sound({sound:bgmusic_loop2_sound, volume:0%, loop:true})
@@ -169,13 +180,13 @@ for i < player_count:
     // handle dpad input
     const new_hex_coord = xy(all_player_hex_coords[i].x + gamepad_array[i].xx,
         all_player_hex_coords[i].y + gamepad_array[i].yy)
-    if (VALID_HEX_COORD_MASK[new_hex_coord.y] & (1<<new_hex_coord.x)) ≠ 0:
+    if is_valid_board_hex(new_hex_coord):
         all_player_hex_coords[i] = new_hex_coord;
     // handle button A input
+    const player_hex = all_player_hex_coords[i]
     if gamepad_array[i].aa:
         play_sound(PLAYER_CLICK_SOUNDS[i])
         map_set_sprite_by_hex(map, all_player_hex_coords[i], PLAYER_TERRITORY_SPRITES[i])
-        set_cell_owner_hex_coord(all_player_hex_coords[i], i)
     // Update player "next move" previews
     let preview_mc = PLAYER_PREVIEW_MAP_COORDS[i]
     let preview_hc = transform_map_coord_to_hex(preview_mc)
