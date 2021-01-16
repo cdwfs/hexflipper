@@ -65,7 +65,8 @@ const ARROW_SPRITES = [
     hex_sprite.arrow_nw[0],
     ]
 
-let player_move_codes = [0,0,0,0]
+let player_current_moves = [0,0,0,0]
+let player_next_moves = [0,0,0,0]
 
 // Draw a sprite at the provided map coordinates
 def draw_sprite_on_hex_map(sprite, map_coord):
@@ -85,6 +86,28 @@ def set_cell_owner_map_coord(map_coord, player_id):
     map_cell_owner[map_coord.x][map_coord.y] = player_id
 def set_cell_owner_hex_coord(hex_coord, player_id):
     set_cell_owner_map_coord(transform_hex_to_map_coord(hex_coord), player_id)
+
+// Generate a move code. Not all moves are equally likely.
+def generate_move_code():
+    const p = ξ
+    let bit_count = 0
+    if p < 0.50:
+        bit_count = 1
+    else if p < 0.80:
+        bit_count = 2
+    else if p < 0.90:
+        bit_count = 3
+    else if p < 0.95:
+        bit_count = 4
+    else if p < 0.98:
+        bit_count = 5
+    else:
+        bit_count = 6
+    let move = 0b000000
+    const set_bits = slice(shuffled([0,1,2,3,4,5]), 0, bit_count)
+    for b in set_bits:
+        move ∪= 1<<b
+    return move
 
 // music playback
 let bgmusic
@@ -114,12 +137,12 @@ bgmusic_start_time = now()
 
 // random starting moves for each player
 for i < player_count:
-    player_move_codes[i] = random_integer(0,63)
+    player_current_moves[i] = generate_move_code()
+    player_next_moves[i] = generate_move_code()
 
 leave
 ────────────────────────────────────────────────────────────────────────
 set_transform(xy(0, SCREEN_SIZE.y), xy(1, -1))
-
 
 frame
 ────────────────────────────────────────────────────────────────────────
@@ -153,13 +176,12 @@ for i < player_count:
         play_sound(PLAYER_CLICK_SOUNDS[i])
         map_set_sprite_by_hex(map, all_player_hex_coords[i], PLAYER_TERRITORY_SPRITES[i])
         set_cell_owner_hex_coord(all_player_hex_coords[i], i)
-    // Update player move previews
-    // TODO: this should reflect the NEXT move, not the current move.
+    // Update player "next move" previews
     let preview_mc = PLAYER_PREVIEW_MAP_COORDS[i]
     let preview_hc = transform_map_coord_to_hex(preview_mc)
     for neighbor < 6:
         map_set_sprite_by_hex(map, preview_hc + HEX_COORD_NEIGHBOR_OFFSETS[neighbor],
-            if (player_move_codes[i] & (1<<neighbor)) ≠ 0 then ARROW_SPRITES[neighbor] else ∅)
+            if (player_next_moves[i] & (1<<neighbor)) ≠ 0 then ARROW_SPRITES[neighbor] else ∅)
 
 
 // draw things
@@ -167,6 +189,6 @@ draw_hex_map(map)
 for i < player_count:
     draw_sprite_on_hex_map(PLAYER_OVERLAY_SPRITES[i], transform_hex_to_map_coord(all_player_hex_coords[i]))
     for neighbor < 6:
-        if (player_move_codes[i] & (1<<neighbor)) ≠ 0:
+        if (player_current_moves[i] & (1<<neighbor)) ≠ 0:
             draw_sprite_on_hex_map(ARROW_SPRITES[neighbor].animation.frame(mode_frames),
                 transform_hex_to_map_coord(all_player_hex_coords[i] + HEX_COORD_NEIGHBOR_OFFSETS[neighbor]))    
