@@ -185,8 +185,19 @@ for i < player_count:
     // handle button A input
     const player_hex = all_player_hex_coords[i]
     if gamepad_array[i].aa:
-        play_sound(PLAYER_CLICK_SOUNDS[i])
-        map_set_sprite_by_hex(map, all_player_hex_coords[i], PLAYER_TERRITORY_SPRITES[i])
+        // Can only flip on a cell you own
+        if get_cell_owner_hex_coord(player_hex) ≠ i:
+            play_sound(blip_12_sound) // error
+        else:
+            // successful flip
+            play_sound(PLAYER_CLICK_SOUNDS[i])
+            for neighbor < 6:
+                if (player_current_moves[i] & (1<<neighbor)) ≠ 0:
+                    const neighbor_hex = player_hex + HEX_COORD_NEIGHBOR_OFFSETS[neighbor]
+                    if is_valid_board_hex(neighbor_hex):
+                        set_cell_owner_hex_coord(neighbor_hex, i)
+            player_current_moves[i] = player_next_moves[i]
+            player_next_moves[i] = generate_move_code()
     // Update player "next move" previews
     let preview_mc = PLAYER_PREVIEW_MAP_COORDS[i]
     let preview_hc = transform_map_coord_to_hex(preview_mc)
