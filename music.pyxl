@@ -1,0 +1,50 @@
+let bgm_loop1 = ∅
+let bgm_loop2 = ∅
+let bgm_start_time = 0
+
+let bgm_beat = 0 // whole-number beat
+let bgm_measure = 0 // whole-number measure (12 beats/measure)
+let bgm_beat_t = 0 // progress within the current beat [0..1]
+let bgm_measure_t = 0 // progress within the current measure [0..1]
+let bgm_beat_in_measure = 0 // whole-number beat index within each measure [0..11] 
+
+def bgm_start():
+    // Start music loops playing (should be the last thing that happens in enter)
+    bgm_loop1 = play_sound({sound:bgmusic_loop1_sound, loop:true})
+    bgm_loop2 = play_sound({sound:bgmusic_loop2_sound, volume:0%, loop:true})
+    bgm_start_time = now()
+
+def bgm_stop():
+    stop_audio(bgm_loop1)
+    stop_audio(bgm_loop2)
+
+def bgm_update():
+    const t = now() - bgm_start_time
+    bgm_beat = floor(t / 0.2)
+    bgm_measure = floor(t / 2.4)
+    bgm_beat_in_measure = bgm_beat % 12
+    bgm_beat_t = (t % 0.2) / 0.2
+    bgm_measure_t = (t % 2.4) / 2.4
+
+def bgm_draw_debug(z default 0) preserving_transform:
+    reset_transform()
+    let bb = xy(0,0)
+    const BGM_DEBUG_TEXT_ARGS = {font:font, color:#f, x_align:"left", y_align:"top", z:z}
+    const MAX_BAR_WIDTH = 40
+    const BAR_HEIGHT = 5
+    bb += draw_text({text:"Beat: " + bgm_beat, pos:xy(0,0) + bb.y, ...BGM_DEBUG_TEXT_ARGS})
+    bb += draw_text({text:"Measure: " + bgm_measure, pos:xy(0,0+bb.y), ...BGM_DEBUG_TEXT_ARGS})
+    bb += draw_text({text:"BIM: " + bgm_beat_in_measure, pos:xy(0,0+bb.y), ...BGM_DEBUG_TEXT_ARGS})
+    draw_corner_rect({corner:xy(0,bb.y), size:xy(MAX_BAR_WIDTH, BAR_HEIGHT), outline:#0ff, color:rgba(0,0,0,0), z:z})
+    draw_corner_rect({corner:xy(0,bb.y), size:xy(bgm_beat_t * MAX_BAR_WIDTH, BAR_HEIGHT), color:#0ff, z:z})
+    draw_corner_rect({corner:xy(0,bb.y+2*BAR_HEIGHT), size:xy(MAX_BAR_WIDTH, BAR_HEIGHT), outline:#0ff, color:rgba(0,0,0,0), z:z})
+    draw_corner_rect({corner:xy(0,bb.y+2*BAR_HEIGHT), size:xy(bgm_measure_t * MAX_BAR_WIDTH, BAR_HEIGHT), color:#0ff, z:z})
+    debug_watch(bgm_measure_t)
+    /*
+    if (bgm_measure % 2) == 0:
+        set_volume(bgm_loop1, 100%)
+        set_volume(bgm_loop2, 0%)
+    else:
+        set_volume(bgm_loop1, 0%)
+        set_volume(bgm_loop2, 100%)
+    */

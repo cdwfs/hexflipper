@@ -117,11 +117,6 @@ def generate_move_code():
         move ∪= 1<<b
     return move
 
-// music playback
-let bgmusic
-let bgmusic2
-let bgmusic_start_time = 0
-
 // turn-taking
 let current_player
 
@@ -161,14 +156,12 @@ for i < player_count:
 // reset turn counter
 current_player = 0
 
-// Start music loops playing (should be the last thing that happens in enter)
-bgmusic = play_sound({sound:bgmusic_loop1_sound, loop:true})
-bgmusic2 = play_sound({sound:bgmusic_loop2_sound, volume:0%, loop:true})
-bgmusic_start_time = now()
+bgm_start()
 
 leave
 ────────────────────────────────────────────────────────────────────────
-set_transform(xy(0, SCREEN_SIZE.y), xy(1, -1))
+bgm_stop()
+set_transform(xy(0, SCREEN_SIZE.y), xy(1, -1)) // TODO: reset_transform()?
 
 frame
 ────────────────────────────────────────────────────────────────────────
@@ -176,20 +169,7 @@ frame
 //
 // reactive-music stuff goes here
 //
-
-// yellow square in time with the beat
-let beat = floor((now()-bgmusic_start_time) / 0.2)
-let bim = beat % 12
-if bim == 0 or bim == 2 or bim == 4 or bim == 7 or bim == 10:
-    draw_corner_rect({corner:xy(100,100), size:xy(20,-20), color:#ff0, z:5})
-// switch between two active loops
-let measure = floor((now()-bgmusic_start_time) / 2.4)
-if (measure % 2) == 0:
-    set_volume(bgmusic, 100%)
-    set_volume(bgmusic2, 0%)
-else:
-    set_volume(bgmusic, 0%)
-    set_volume(bgmusic2, 100%)
+bgm_update()
 
 // handle dpad input
 for i < player_count:
@@ -236,3 +216,4 @@ for neighbor < 6:
         const arrow_hex = all_player_hex_coords[current_player] + HEX_COORD_NEIGHBOR_OFFSETS[neighbor]
         draw_sprite_on_hex_map(ARROW_SPRITES[neighbor].animation.frame(mode_frames),
             transform_hex_to_map_coord(arrow_hex))
+bgm_draw_debug(10)
