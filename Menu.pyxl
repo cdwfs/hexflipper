@@ -1,0 +1,51 @@
+Menu
+════════════════════════════════════════════════════════════════════════
+// Put local state for the mode here.  Declare variables with let, constants with const, and functions with def.
+let current_menu_item
+const MENU_NEW_GAME = 0
+const MENU_CREDITS = 1
+const MENU_ITEM_COUNT = 2
+
+const CURSOR_MOVE_SOUND = {sound:blip_05_sound, volume: 100%}
+const CURSOR_ACCEPT_SOUND = {sound:blip_12_sound, volume: 100%}
+
+
+enter
+────────────────────────────────────────────────────────────────────────
+// This event runs when the mode is entered via set_mode() or push_mode().
+current_menu_item = MENU_NEW_GAME
+
+frame
+────────────────────────────────────────────────────────────────────────
+// Handle cursor movement
+if gamepad_array[0].yy ≠ 0:
+    play_sound(CURSOR_MOVE_SOUND)
+    current_menu_item = (current_menu_item + MENU_ITEM_COUNT + gamepad_array[0].yy) % MENU_ITEM_COUNT
+
+// Handle menu selection
+if gamepad_array[0].aa ≠ 0:
+    if current_menu_item == MENU_NEW_GAME:
+        play_sound(CURSOR_ACCEPT_SOUND)
+        let game_info = {"player_count": 2}
+        set_mode(Play, game_info)
+    else if current_menu_item == MENU_CREDITS:
+        play_sound({sound:blip_07_sound, volume: 100%})
+        debug_print("Credits don't do anything yet")
+
+draw_text({font:font, text:"HexFlipper", pos:50% SCREEN_SIZE, x_align:"center", color:#f})
+
+const menu_offset = xy(45% SCREEN_SIZE.x, 75% SCREEN_SIZE.y)
+let menu_line1_box = draw_text({font:font, text:"New Game", pos:menu_offset, x_align:"left", color:#f})
+if current_menu_item == MENU_NEW_GAME:
+    draw_text({font:font, text:replace("(a)", gamepad_array[0].prompt), pos:menu_offset - xy(10,0), x_align:"right", color:#f})
+menu_offset.y += menu_line1_box.y
+
+let menu_line2 = draw_text({font:font, text:"Credits", pos:menu_offset, x_align:"left", color:#f})
+if current_menu_item == MENU_CREDITS:
+    draw_text({font:font, text:replace("(a)", gamepad_array[0].prompt), pos:menu_offset - xy(10,0), x_align:"right", color:#f})
+menu_offset.y += menu_line1_box.y
+
+leave
+────────────────────────────────────────────────────────────────────────
+// This event runs just before leaving for another mode by set_mode() or pop_mode().
+

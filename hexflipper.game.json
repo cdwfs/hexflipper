@@ -8,9 +8,10 @@
         "hex_grid.pyxl"
     ],
     "modes": [
-        "Play"
+        "Play",
+        "Menu"
     ],
-    "start_mode": "Play",
+    "start_mode": "Menu",
     "docs": [],
     "assets": {
         "font": "quad://fonts/deja-8.font.json",

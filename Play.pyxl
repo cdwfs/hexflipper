@@ -125,11 +125,11 @@ let bgmusic_start_time = 0
 // turn-taking
 let current_player
 
-enter(player_info)
+enter(game_info)
 ────────────────────────────────────────────────────────────────────────
 
 map = clone(game_board_map)
-player_count = 2 // TODO: choose from 1-4 at title and pass via player_info
+player_count = game_info.player_count
 
 set_transform(xy(-48, SCREEN_SIZE.y + 8), xy(1, -1))
 
