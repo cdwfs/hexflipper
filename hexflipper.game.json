@@ -5,7 +5,8 @@
     "license": "Open source under the BSD 3-Clause license https://opensource.org/licenses/BSD-3-Clause",
     "packages": [],
     "scripts": [
-        "hex_grid.pyxl"
+        "hex_grid.pyxl",
+        "music.pyxl"
     ],
     "modes": [
         "Play",
@@ -30,23 +31,29 @@
     "competitive": true,
     "achievements": false,
     "highscores": false,
-    "credits" : {
+    "credits": {
         "main": [
-            "Code:", "Cort Stratton",
-            "Art:", "Cort Stratton",
-            "Design:", "Cort Stratton",
-            "Music:", "Calamity Range",
-            "Thanks:", "Lesley Mathieson",
-            "", "Ben Burnes",
-            ],
+            "Code:",
+            "Cort Stratton",
+            "Art:",
+            "Cort Stratton",
+            "Design:",
+            "Cort Stratton",
+            "Music:",
+            "Calamity Range",
+            "Thanks:",
+            "Lesley Mathieson",
+            "",
+            "Ben Burnes"
+        ],
         "extra": ""
     },
     "links": {
-        "game" : {
+        "game": {
             "www": "https://game...",
-            "github": "https://github.com/cdwfs/hexflipper",
+            "github": "https://github.com/cdwfs/hexflipper"
         },
-        "developer" : {
+        "developer": {
             "twitter": "@postgoodism"
         }
     },
