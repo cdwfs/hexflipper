@@ -122,6 +122,9 @@ let bgmusic
 let bgmusic2
 let bgmusic_start_time = 0
 
+// turn-taking
+let current_player
+
 enter(player_info)
 ────────────────────────────────────────────────────────────────────────
 
@@ -141,15 +144,27 @@ for x < size(map):
 for i < player_count:
     set_cell_owner_hex_coord(all_player_hex_coords[i], i)
     
-// Start music loops playing
-bgmusic = play_sound({sound:bgmusic_loop1_sound, loop:true})
-bgmusic2 = play_sound({sound:bgmusic_loop2_sound, volume:0%, loop:true})
-bgmusic_start_time = now()
-
 // random starting moves for each player
 for i < player_count:
     player_current_moves[i] = generate_move_code()
     player_next_moves[i] = generate_move_code()
+// Initialize each player's "next move" preview
+for i < player_count:
+    let preview_mc = PLAYER_PREVIEW_MAP_COORDS[i]
+    let preview_hc = transform_map_coord_to_hex(preview_mc)
+    for neighbor < 6:
+        map_set_sprite_by_hex(map, preview_hc + HEX_COORD_NEIGHBOR_OFFSETS[neighbor],
+            if (player_next_moves[i] & (1<<neighbor)) ≠ 0 then ARROW_SPRITES[neighbor] else ∅)
+
+
+
+// reset turn counter
+current_player = 0
+
+// Start music loops playing (should be the last thing that happens in enter)
+bgmusic = play_sound({sound:bgmusic_loop1_sound, loop:true})
+bgmusic2 = play_sound({sound:bgmusic_loop2_sound, volume:0%, loop:true})
+bgmusic_start_time = now()
 
 leave
 ────────────────────────────────────────────────────────────────────────
@@ -176,41 +191,48 @@ else:
     set_volume(bgmusic, 0%)
     set_volume(bgmusic2, 100%)
 
+// handle dpad input
 for i < player_count:
-    // handle dpad input
     const new_hex_coord = xy(all_player_hex_coords[i].x + gamepad_array[i].xx,
         all_player_hex_coords[i].y + gamepad_array[i].yy)
     if is_valid_board_hex(new_hex_coord):
         all_player_hex_coords[i] = new_hex_coord;
-    // handle button A input
-    const player_hex = all_player_hex_coords[i]
-    if gamepad_array[i].aa:
-        // Can only flip on a cell you own
-        if get_cell_owner_hex_coord(player_hex) ≠ i:
-            play_sound(blip_12_sound) // error
-        else:
-            // successful flip
-            play_sound(PLAYER_CLICK_SOUNDS[i])
-            for neighbor < 6:
-                if (player_current_moves[i] & (1<<neighbor)) ≠ 0:
-                    const neighbor_hex = player_hex + HEX_COORD_NEIGHBOR_OFFSETS[neighbor]
-                    if is_valid_board_hex(neighbor_hex):
-                        set_cell_owner_hex_coord(neighbor_hex, i)
-            player_current_moves[i] = player_next_moves[i]
-            player_next_moves[i] = generate_move_code()
-    // Update player "next move" previews
-    let preview_mc = PLAYER_PREVIEW_MAP_COORDS[i]
-    let preview_hc = transform_map_coord_to_hex(preview_mc)
-    for neighbor < 6:
-        map_set_sprite_by_hex(map, preview_hc + HEX_COORD_NEIGHBOR_OFFSETS[neighbor],
-            if (player_next_moves[i] & (1<<neighbor)) ≠ 0 then ARROW_SPRITES[neighbor] else ∅)
+
+// Current player can push A to commit their move
+const player_hex = all_player_hex_coords[current_player]
+if gamepad_array[current_player].aa:
+    // Can only flip on a cell you own
+    if get_cell_owner_hex_coord(player_hex) ≠ current_player:
+        play_sound(blip_12_sound) // error
+    else:
+        // successful flip
+        play_sound(PLAYER_CLICK_SOUNDS[current_player])
+        for neighbor < 6:
+            if (player_current_moves[current_player] & (1<<neighbor)) ≠ 0:
+                const neighbor_hex = player_hex + HEX_COORD_NEIGHBOR_OFFSETS[neighbor]
+                if is_valid_board_hex(neighbor_hex):
+                    set_cell_owner_hex_coord(neighbor_hex, current_player)
+        // advance current player
+        current_player = (current_player+1) % player_count
+        // move current players next move to their current move and generate a new next move
+        player_current_moves[current_player] = player_next_moves[current_player]
+        player_next_moves[current_player] = generate_move_code()
+        // Update player "next move" previews
+        let preview_mc = PLAYER_PREVIEW_MAP_COORDS[current_player]
+        let preview_hc = transform_map_coord_to_hex(preview_mc)
+        for neighbor < 6:
+            map_set_sprite_by_hex(map, preview_hc + HEX_COORD_NEIGHBOR_OFFSETS[neighbor],
+                if (player_next_moves[current_player] & (1<<neighbor)) ≠ 0 then ARROW_SPRITES[neighbor] else ∅)
 
 
 // draw things
 draw_hex_map(map)
+// Draw players on map
 for i < player_count:
     draw_sprite_on_hex_map(PLAYER_OVERLAY_SPRITES[i], transform_hex_to_map_coord(all_player_hex_coords[i]))
-    for neighbor < 6:
-        if (player_current_moves[i] & (1<<neighbor)) ≠ 0:
-            draw_sprite_on_hex_map(ARROW_SPRITES[neighbor].animation.frame(mode_frames),
-                transform_hex_to_map_coord(all_player_hex_coords[i] + HEX_COORD_NEIGHBOR_OFFSETS[neighbor]))    
+// Draw current player's move around their hex
+for neighbor < 6:
+    if (player_current_moves[current_player] & (1<<neighbor)) ≠ 0:
+        const arrow_hex = all_player_hex_coords[current_player] + HEX_COORD_NEIGHBOR_OFFSETS[neighbor]
+        draw_sprite_on_hex_map(ARROW_SPRITES[neighbor].animation.frame(mode_frames),
+            transform_hex_to_map_coord(arrow_hex))
