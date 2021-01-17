@@ -9,6 +9,8 @@ const MENU_ITEM_COUNT = 2
 const CURSOR_MOVE_SOUND = {sound:blip_05_sound, volume: 100%}
 const CURSOR_ACCEPT_SOUND = {sound:blip_12_sound, volume: 100%}
 
+const MENU_ITEM_TEXT_ARGS = {font:font, color:#f, x_align:"left"}
+const MENU_CURSOR_TEXT_ARGS = {font:font, text:replace("(a)", gamepad_array[0].prompt), x_align:"right", color:#f}
 
 enter
 ────────────────────────────────────────────────────────────────────────
@@ -35,14 +37,14 @@ if gamepad_array[0].aa ≠ 0:
 draw_text({font:font, text:"HexFlipper", pos:50% SCREEN_SIZE, x_align:"center", color:#f})
 
 const menu_offset = xy(45% SCREEN_SIZE.x, 75% SCREEN_SIZE.y)
-let menu_line1_box = draw_text({font:font, text:"New Game", pos:menu_offset, x_align:"left", color:#f})
+let menu_line1_box = draw_text({text:"New Game", pos:menu_offset, ...MENU_ITEM_TEXT_ARGS})
 if current_menu_item == MENU_NEW_GAME:
-    draw_text({font:font, text:replace("(a)", gamepad_array[0].prompt), pos:menu_offset - xy(10,0), x_align:"right", color:#f})
+    draw_text({pos:menu_offset - xy(10,0), ...MENU_CURSOR_TEXT_ARGS})
 menu_offset.y += menu_line1_box.y
 
-let menu_line2 = draw_text({font:font, text:"Credits", pos:menu_offset, x_align:"left", color:#f})
+let menu_line2 = draw_text({font:font, text:"Credits", pos:menu_offset, ...MENU_ITEM_TEXT_ARGS})
 if current_menu_item == MENU_CREDITS:
-    draw_text({font:font, text:replace("(a)", gamepad_array[0].prompt), pos:menu_offset - xy(10,0), x_align:"right", color:#f})
+    draw_text({pos:menu_offset - xy(10,0), ...MENU_CURSOR_TEXT_ARGS})
 menu_offset.y += menu_line1_box.y
 
 leave
