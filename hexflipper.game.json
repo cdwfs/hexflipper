@@ -22,13 +22,33 @@
         "bgmusic_loop2_sound": "bgmusic-loop2.sound.json",
         "blip_12_sound": "blip-12.sound.json"
     },
-    "version": 0,
+    "version": 1,
     "min_players": 1,
-    "max_players": 1,
+    "max_players": 4,
     "cooperative": false,
-    "competitive": false,
+    "competitive": true,
     "achievements": false,
     "highscores": false,
+    "credits" : {
+        "main": [
+            "Code:", "Cort Stratton",
+            "Art:", "Cort Stratton",
+            "Design:", "Cort Stratton",
+            "Music:", "Calamity Range",
+            "Thanks:", "Lesley Mathieson",
+            "", "Ben Burnes",
+            ],
+        "extra": ""
+    },
+    "links": {
+        "game" : {
+            "www": "https://game...",
+            "github": "https://github.com/cdwfs/hexflipper",
+        },
+        "developer" : {
+            "twitter": "@postgoodism"
+        }
+    },
     "description": "Description of your game in about 100 characters.",
     "constants": {
         "text_color": {
