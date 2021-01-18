@@ -3,8 +3,10 @@ Play
 
 /** Clone of map for the game */
 let map
-let player_count
-let all_player_hex_coords = [xy(1,9), xy(9,1), xy(5,1), xy(5,9)]
+let player_types
+let player_hexes
+let disable_input
+const PLAYER_COUNT = 4 // players are skipped if player_types[i] == PLAYER_TYPE_NONE
 const PLAYER_NEUTRAL = -1
 const INVALID_HEX = -2
 const PLAYER_CLICK_SOUNDS = [
@@ -67,9 +69,6 @@ const ARROW_SPRITES = [
     hex_sprite.arrow_nw[0],
     ]
 
-let player_current_moves = [0,0,0,0]
-let player_next_moves = [0,0,0,0]
-
 // Draw a sprite at the provided map coordinates
 def draw_sprite_on_hex_map(sprite, map_coord):
     let pos = xy(
@@ -96,6 +95,8 @@ def is_valid_board_hex(hex_coord):
     return get_cell_owner_hex_coord(hex_coord) ≠ INVALID_HEX
 
 // Generate a move code. Not all moves are equally likely.
+let player_current_moves
+let player_next_moves
 def generate_move_code():
     const p = ξ
     let bit_count = 0
@@ -119,12 +120,26 @@ def generate_move_code():
 
 // turn-taking
 let current_player
+def advance_to_next_player():
+    current_player = (current_player+1) % 4
+    while player_types[current_player] == PLAYER_TYPE_NONE:
+        current_player = (current_player+1) % 4
 
-enter(game_info)
+def enter_menu_mode(data):
+    reset_post_effects()
+    set_mode(Menu) because "Returned to main menu"
+
+enter(in_player_types)
 ────────────────────────────────────────────────────────────────────────
 
 map = clone(game_board_map)
-player_count = game_info.player_count
+player_types = clone(in_player_types)
+set_random_seed() // default is time-based
+
+// Reset per-player data
+player_hexes = [xy(1,9), xy(9,1), xy(5,1), xy(5,9)]
+player_current_moves = [0,0,0,0]
+player_next_moves = [0,0,0,0]
 
 set_transform(xy(-48, SCREEN_SIZE.y + 8), xy(1, -1))
 
@@ -135,33 +150,31 @@ for x < size(map):
         let hc = transform_map_coord_to_hex(xy(x,y))
         new_col.push(if (VALID_HEX_COORD_MASK[hc.y] & (1<<hc.x)) ≠ 0 then PLAYER_NEUTRAL else INVALID_HEX)
     map_cell_owner.push(new_col)
-// Players start on their own territory
-for i < player_count:
-    set_cell_owner_hex_coord(all_player_hex_coords[i], i)
-    
-// random starting moves for each player
-for i < player_count:
+for i < PLAYER_COUNT:
+    if player_types[i] == PLAYER_TYPE_NONE:
+        continue
+    // Players start on their own territory
+    set_cell_owner_hex_coord(player_hexes[i], i)
+    // random starting moves for each player
     player_current_moves[i] = generate_move_code()
     player_next_moves[i] = generate_move_code()
-// Initialize each player's "next move" preview
-for i < player_count:
+    // Initialize each player's "next move" preview
     let preview_mc = PLAYER_PREVIEW_MAP_COORDS[i]
     let preview_hc = transform_map_coord_to_hex(preview_mc)
     for neighbor < 6:
         map_set_sprite_by_hex(map, preview_hc + HEX_COORD_NEIGHBOR_OFFSETS[neighbor],
             if (player_next_moves[i] & (1<<neighbor)) ≠ 0 then ARROW_SPRITES[neighbor] else ∅)
 
-
-
 // reset turn counter
 current_player = 0
 
+disable_input = false
 bgm_start()
 
 leave
 ────────────────────────────────────────────────────────────────────────
 bgm_stop()
-set_transform(xy(0, SCREEN_SIZE.y), xy(1, -1)) // TODO: reset_transform()?
+reset_transform()
 
 frame
 ────────────────────────────────────────────────────────────────────────
@@ -172,48 +185,59 @@ frame
 bgm_update()
 
 // handle dpad input
-for i < player_count:
-    const new_hex_coord = xy(all_player_hex_coords[i].x + gamepad_array[i].xx,
-        all_player_hex_coords[i].y + gamepad_array[i].yy)
-    if is_valid_board_hex(new_hex_coord):
-        all_player_hex_coords[i] = new_hex_coord;
+if not disable_input:
+    // DEBUG: test returning to the main menu if (e) and (f) are pressed together
+    if gamepad_array[0].e != 0 and gamepad_array[0].f != 0:
+        disable_input = true
+        add_frame_hook(fade_out, enter_menu_mode, 30, ∅, {})
 
-// Current player can push A to commit their move
-const player_hex = all_player_hex_coords[current_player]
-if gamepad_array[current_player].aa:
-    // Can only flip on a cell you own
-    if get_cell_owner_hex_coord(player_hex) ≠ current_player:
-        play_sound(blip_12_sound) // error
-    else:
-        // successful flip
-        play_sound(PLAYER_CLICK_SOUNDS[current_player])
-        for neighbor < 6:
-            if (player_current_moves[current_player] & (1<<neighbor)) ≠ 0:
-                const neighbor_hex = player_hex + HEX_COORD_NEIGHBOR_OFFSETS[neighbor]
-                if is_valid_board_hex(neighbor_hex):
-                    set_cell_owner_hex_coord(neighbor_hex, current_player)
-        // advance current player
-        current_player = (current_player+1) % player_count
-        // move current players next move to their current move and generate a new next move
-        player_current_moves[current_player] = player_next_moves[current_player]
-        player_next_moves[current_player] = generate_move_code()
-        // Update player "next move" previews
-        let preview_mc = PLAYER_PREVIEW_MAP_COORDS[current_player]
-        let preview_hc = transform_map_coord_to_hex(preview_mc)
-        for neighbor < 6:
-            map_set_sprite_by_hex(map, preview_hc + HEX_COORD_NEIGHBOR_OFFSETS[neighbor],
-                if (player_next_moves[current_player] & (1<<neighbor)) ≠ 0 then ARROW_SPRITES[neighbor] else ∅)
+    for i < PLAYER_COUNT:
+        if player_types[i] == PLAYER_TYPE_NONE:
+            continue
+        const new_hex_coord = xy(player_hexes[i].x + gamepad_array[i].xx,
+            player_hexes[i].y + gamepad_array[i].yy)
+        if is_valid_board_hex(new_hex_coord):
+            player_hexes[i] = new_hex_coord;
+    
+    // Current player can push A to commit their move
+    const player_hex = player_hexes[current_player]
+    if gamepad_array[current_player].aa:
+        // Can only flip on a cell you own
+        if get_cell_owner_hex_coord(player_hex) ≠ current_player:
+            play_sound(blip_12_sound) // error
+        else:
+            // successful flip
+            play_sound(PLAYER_CLICK_SOUNDS[current_player])
+            for neighbor < 6:
+                if (player_current_moves[current_player] & (1<<neighbor)) ≠ 0:
+                    const neighbor_hex = player_hex + HEX_COORD_NEIGHBOR_OFFSETS[neighbor]
+                    if is_valid_board_hex(neighbor_hex):
+                        set_cell_owner_hex_coord(neighbor_hex, current_player)
+            // advance current player
+            advance_to_next_player()
+            // move current players next move to their current move and generate a new next move
+            player_current_moves[current_player] = player_next_moves[current_player]
+            player_next_moves[current_player] = generate_move_code()
+            // Update player "next move" previews
+            let preview_mc = PLAYER_PREVIEW_MAP_COORDS[current_player]
+            let preview_hc = transform_map_coord_to_hex(preview_mc)
+            for neighbor < 6:
+                map_set_sprite_by_hex(map, preview_hc + HEX_COORD_NEIGHBOR_OFFSETS[neighbor],
+                    if (player_next_moves[current_player] & (1<<neighbor)) ≠ 0 then ARROW_SPRITES[neighbor] else ∅)
 
 
 // draw things
 draw_hex_map(map)
 // Draw players on map
-for i < player_count:
-    draw_sprite_on_hex_map(PLAYER_OVERLAY_SPRITES[i], transform_hex_to_map_coord(all_player_hex_coords[i]))
+for i < PLAYER_COUNT:
+    if player_types[i] == PLAYER_TYPE_NONE:
+        continue
+    draw_sprite_on_hex_map(PLAYER_OVERLAY_SPRITES[i], transform_hex_to_map_coord(player_hexes[i]))
 // Draw current player's move around their hex
 for neighbor < 6:
     if (player_current_moves[current_player] & (1<<neighbor)) ≠ 0:
-        const arrow_hex = all_player_hex_coords[current_player] + HEX_COORD_NEIGHBOR_OFFSETS[neighbor]
+        const arrow_hex = player_hexes[current_player] + HEX_COORD_NEIGHBOR_OFFSETS[neighbor]
         draw_sprite_on_hex_map(ARROW_SPRITES[neighbor].animation.frame(mode_frames),
             transform_hex_to_map_coord(arrow_hex))
+// reactive music debug overlay
 bgm_draw_debug(10)

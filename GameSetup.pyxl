@@ -1,0 +1,80 @@
+GameSetup
+════════════════════════════════════════════════════════════════════════
+let disable_input
+let current_player
+let player_types
+const PLAYER_SPRITES = [
+    hex_sprite.territory_p1,
+    hex_sprite.territory_p2,
+    hex_sprite.territory_p3,
+    hex_sprite.territory_p4,
+    ]
+    
+def enter_play_mode(player_types):
+    reset_post_effects()
+    set_mode(Play, player_types) because "Started game"
+
+def enter_menu_mode(data):
+    reset_post_effects()
+    set_mode(Menu) because "Returned to main menu"
+
+enter
+────────────────────────────────────────────────────────────────────────
+disable_input = false
+current_player = 0
+player_types = [PLAYER_TYPE_HUMAN, PLAYER_TYPE_HUMAN, PLAYER_TYPE_NONE, PLAYER_TYPE_NONE]
+
+frame
+────────────────────────────────────────────────────────────────────────
+
+if not disable_input:
+    // Move cursor left/right to choose a player to edit
+    if gamepad_array[0].xx:
+        play_sound(CURSOR_MOVE_SOUND)
+        const max_player_count = 4
+        current_player = (current_player + max_player_count + gamepad_array[0].xx) % max_player_count
+    // Move cursor up/down to choose the type of the current player
+    if gamepad_array[0].yy:
+        play_sound(CURSOR_MOVE_SOUND)
+        const player_type_count = 2
+        player_types[current_player] = (player_types[current_player] + player_type_count + gamepad_array[0].yy) % player_type_count
+    // Push A to start the game
+    if gamepad_array[0].aa:
+        // Must have at least one player
+        if player_types[0] bitor player_types[1] bitor player_types[2] bitor player_types[3] != 0:
+            disable_input = true
+            play_sound(CURSOR_ACCEPT_SOUND)
+            add_frame_hook(fade_out, enter_play_mode, 30, ∅, player_types)
+    // Push B to go back to the main menu
+    else if gamepad_array[0].bb:
+        disable_input = true
+        play_sound(CURSOR_ACCEPT_SOUND)
+        add_frame_hook(fade_out, enter_menu_mode, 30, ∅, {})
+        
+// Draw representations of the current players
+for i < 4:
+    let p = xy((2*i+1)*SCREEN_SIZE.x/8, 50% SCREEN_SIZE.y)
+    const label_text_args = {font:font, pos:p, color:#0, x_align:"center", y_align:"center", z:1}
+    if player_types[i] == PLAYER_TYPE_NONE:
+        draw_sprite({sprite:hex_sprite.territory_neutral, pos:xy((2*i+1)*SCREEN_SIZE.x/8, 50% SCREEN_SIZE.y)})
+        draw_text({text:"NONE", ...label_text_args})
+    else if player_types[i] == PLAYER_TYPE_HUMAN:
+        draw_sprite({sprite:PLAYER_SPRITES[i], pos:p})
+        draw_text({text:"P"+(i+1), ...label_text_args})
+    else if player_types[i] == PLAYER_TYPE_CPU:
+        draw_sprite({sprite:PLAYER_SPRITES[i], pos:xy((2*i+1)*SCREEN_SIZE.x/8, 50% SCREEN_SIZE.y)})
+        draw_text({text:"CPU", ...label_text_args})
+
+// Draw the input prompts
+draw_text({font:font, pos:xy((2*current_player+1)*SCREEN_SIZE.x/8, 50% SCREEN_SIZE.y - 25),
+    x_align:"center", y_align:"center", color:#f, text:replace("[^]", gamepad_array[0].prompt)})
+draw_text({font:font, pos:xy((2*current_player+1)*SCREEN_SIZE.x/8, 50% SCREEN_SIZE.y + 25),
+    x_align:"center", y_align:"center", color:#f, text:replace("[v]", gamepad_array[0].prompt)})
+draw_text({font:font, pos:xy(25% SCREEN_SIZE.x, 90% SCREEN_SIZE.y),
+    text:replace("(b) Return To Menu    (a) Start Game", gamepad_array[0].prompt), color:#f})
+
+
+leave
+────────────────────────────────────────────────────────────────────────
+// This event runs just before leaving for another mode by set_mode() or pop_mode().
+

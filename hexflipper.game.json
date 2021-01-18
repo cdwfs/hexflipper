@@ -6,11 +6,15 @@
     "packages": [],
     "scripts": [
         "hex_grid.pyxl",
-        "music.pyxl"
+        "music.pyxl",
+        "globals.pyxl"
     ],
     "modes": [
         "Play",
-        "Menu"
+        "Menu",
+        "GameSetup",
+        "HowToPlay",
+        "Credits"
     ],
     "start_mode": "Menu",
     "docs": [],
