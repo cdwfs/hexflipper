@@ -231,10 +231,11 @@ if not disable_input:
         else:
             // successful flip
             play_sound(PLAYER_CLICK_SOUNDS[current_player])
+            // change neighboring neutral tiles to be owned by this player
             for neighbor < 6:
                 if (player_current_moves[current_player] & (1<<neighbor)) ≠ 0:
                     const neighbor_hex = player_hex + HEX_COORD_NEIGHBOR_OFFSETS[neighbor]
-                    if is_valid_board_hex(neighbor_hex):
+                    if get_cell_owner_hex_coord(neighbor_hex) == PLAYER_NEUTRAL:
                         set_cell_owner_hex_coord(neighbor_hex, current_player)
             // advance current player
             advance_to_next_player()
