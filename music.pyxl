@@ -2,11 +2,15 @@ let bgm_loop1 = ∅
 let bgm_loop2 = ∅
 let bgm_start_time = 0
 
-let bgm_beat = 0 // whole-number beat
-let bgm_measure = 0 // whole-number measure (12 beats/measure)
+let bgm_beat = -1 // whole-number beat
+let bgm_measure = -1 // whole-number measure (12 beats/measure)
+let bgm_beat_in_measure = -1 // whole-number beat index within each measure [0..11] 
 let bgm_beat_t = 0 // progress within the current beat [0..1]
 let bgm_measure_t = 0 // progress within the current measure [0..1]
-let bgm_beat_in_measure = 0 // whole-number beat index within each measure [0..11] 
+// is this the first frame these variables have their current values?
+let bgm_beat_ff = false
+let bgm_measure_ff = false
+let bgm_beat_in_measure_ff = false
 
 def bgm_start():
     // Start music loops playing (should be the last thing that happens in enter)
@@ -20,11 +24,17 @@ def bgm_stop():
 
 def bgm_update():
     const t = now() - bgm_start_time
+    let prev_beat = bgm_beat
+    let prev_measure = bgm_measure
+    let prev_beat_in_measure = bgm_beat_in_measure
     bgm_beat = floor(t / 0.2)
     bgm_measure = floor(t / 2.4)
     bgm_beat_in_measure = bgm_beat % 12
     bgm_beat_t = (t % 0.2) / 0.2
     bgm_measure_t = (t % 2.4) / 2.4
+    bgm_beat_ff = (bgm_beat != prev_beat)
+    bgm_measure_ff = (bgm_measure != prev_measure)
+    bgm_beat_in_measure_ff = (bgm_beat_in_measure != prev_beat_in_measure)
 
 def bgm_draw_debug(z default 0) preserving_transform:
     reset_transform()
