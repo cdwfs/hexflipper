@@ -70,11 +70,11 @@ const ARROW_SPRITES = [
     ]
 
 // Draw a sprite at the provided map coordinates
-def draw_sprite_on_hex_map(sprite, map_coord):
+def draw_sprite_on_hex_map(sprite, map_coord, z default 0):
     let pos = xy(
         MUL(HEX_WIDTH, MAD(½, map_coord.y bitand 1, map_coord.x)),
         MUL(HEX_HEIGHT_75, map_coord.y))
-    draw_sprite(sprite, pos)    
+    draw_sprite({sprite:sprite, pos:pos, z:z})
 
 // Per-cell owner info
 let map_cell_owner
@@ -251,11 +251,14 @@ if not disable_input:
 
 // draw things
 draw_hex_map(map)
-// Draw players on map
+
 for i < PLAYER_COUNT:
     if player_types[i] == PLAYER_TYPE_NONE:
         continue
+    // Draw players on map
     draw_sprite_on_hex_map(PLAYER_OVERLAY_SPRITES[i], transform_hex_to_map_coord(player_hexes[i]))
+    // Draw "next" overlay on preview hexes
+    draw_sprite_on_hex_map(hex_sprite.overlay_next, PLAYER_PREVIEW_MAP_COORDS[i], 1)
 // Draw current player's move around their hex
 for neighbor < 6:
     if (player_current_moves[current_player] & (1<<neighbor)) ≠ 0:

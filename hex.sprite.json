@@ -43,6 +43,10 @@
             "x": 0,
             "y": 7
         },
+        "overlay_next": {
+            "x": 2,
+            "y": 0
+        },
         "arrow_nw": {
             "start": {
                 "x": 0,
