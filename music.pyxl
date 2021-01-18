@@ -1,6 +1,5 @@
 let bgm_loop1 = ∅
 let bgm_loop2 = ∅
-let bgm_start_time = 0
 
 let bgm_beat = -1 // whole-number beat
 let bgm_measure = -1 // whole-number measure (12 beats/measure)
@@ -13,17 +12,16 @@ let bgm_measure_ff = false
 let bgm_beat_in_measure_ff = false
 
 def bgm_start():
-    // Start music loops playing (should be the last thing that happens in enter)
     bgm_loop1 = play_sound({sound:bgmusic_loop1_sound, loop:true})
     bgm_loop2 = play_sound({sound:bgmusic_loop2_sound, volume:0%, loop:true})
-    bgm_start_time = now()
 
 def bgm_stop():
     stop_audio(bgm_loop1)
     stop_audio(bgm_loop2)
 
 def bgm_update():
-    const t = now() - bgm_start_time
+    let status = get_audio_status(bgm_loop1)
+    const t = status.frame / 60
     let prev_beat = bgm_beat
     let prev_measure = bgm_measure
     let prev_beat_in_measure = bgm_beat_in_measure
