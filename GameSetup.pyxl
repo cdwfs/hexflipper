@@ -66,6 +66,7 @@ for i < 4:
         draw_text({text:"CPU", ...label_text_args})
 
 // Draw the input prompts
+draw_sprite({sprite:title_sprite, pos:xy(0.5,0.25)*SCREEN_SIZE})
 draw_text({font:font, pos:xy((2*current_player+1)*SCREEN_SIZE.x/8, 50% SCREEN_SIZE.y - 25),
     x_align:"center", y_align:"center", color:#f, text:replace("[^]", gamepad_array[0].prompt)})
 draw_text({font:font, pos:xy((2*current_player+1)*SCREEN_SIZE.x/8, 50% SCREEN_SIZE.y + 25),
