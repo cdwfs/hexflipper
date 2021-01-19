@@ -131,11 +131,11 @@ def enter_menu_mode(data):
     
 let pulse_hex_scale = 1
 
-enter(in_player_types)
+enter(game_info)
 ────────────────────────────────────────────────────────────────────────
 
 map = clone(game_board_map)
-player_types = clone(in_player_types)
+player_types = clone(game_info.player_types)
 set_random_seed() // default is time-based
 
 // Reset per-player data

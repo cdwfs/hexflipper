@@ -27,7 +27,9 @@
         "bgmusic_loop1_sound": "bgmusic-loop1.sound.json",
         "bgmusic_loop2_sound": "bgmusic-loop2.sound.json",
         "blip_12_sound": "blip-12.sound.json",
-        "title_sprite": "title.sprite.json"
+        "title_sprite": "title.sprite.json",
+        "bgmusic_menu_sound": "bgmusic-menu.sound.json",
+        "bgmusic_menu_to_game_sound": "bgmusic-menu-to-game.sound.json"
     },
     "version": 1,
     "min_players": 1,

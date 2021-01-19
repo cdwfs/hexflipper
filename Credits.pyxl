@@ -13,6 +13,7 @@ enter
 
 frame
 ────────────────────────────────────────────────────────────────────────
+bgm_update()
 if not disable_input:
     if gamepad_array[0].bb != 0:
         disable_input = true

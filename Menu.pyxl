@@ -26,9 +26,16 @@ enter
 // This event runs when the mode is entered via set_mode() or push_mode().
 current_menu_item = MENU_NEW_GAME
 disable_input = false
+if not bgm_is_playing():
+    let loops = [
+        {sound:bgmusic_menu_sound, loop:true, volume:100%},
+        {sound:bgmusic_menu_to_game_sound, loop:true, volume:0%},
+        ]
+    bgm_start(loops)
 
 frame
 ────────────────────────────────────────────────────────────────────────
+bgm_update()
 // Handle cursor movement
 if not disable_input and gamepad_array[0].yy ≠ 0:
     play_sound(CURSOR_MOVE_SOUND)
