@@ -171,7 +171,12 @@ for i < PLAYER_COUNT:
 current_player = 0
 
 disable_input = false
-bgm_start()
+
+let loops = [
+    {sound:bgmusic_loop1_sound, loop:true, volume:100%},
+    {sound:bgmusic_loop2_sound, loop:true, volume:0%},
+    ]
+bgm_start(loops)
 
 leave
 ────────────────────────────────────────────────────────────────────────
