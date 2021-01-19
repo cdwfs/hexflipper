@@ -25,8 +25,8 @@ const text_args = {font:font, x_align:"left", y_align:"top", color:#f}
 let line_y = 0
 line_y += draw_text({text:"When I decide how the game works, this is where I'll tell you how to play!", pos:xy(0, line_y),
     text_size:max(0,mode_frames/3), ...text_args}).y
-draw_text({font:font, pos:xy(25% SCREEN_SIZE.x, 90% SCREEN_SIZE.y),
-    text:replace("(b) Return To Menu", gamepad_array[0].prompt), color:#f})
+draw_text({font:font, pos:xy(50% SCREEN_SIZE.x, 90% SCREEN_SIZE.y),
+    text:replace("(b) Return To Menu", gamepad_array[0].prompt), color:#f, x_align:"center"})
 
 leave
 ────────────────────────────────────────────────────────────────────────
