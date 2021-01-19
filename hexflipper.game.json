@@ -14,7 +14,8 @@
         "Menu",
         "GameSetup",
         "HowToPlay",
-        "Credits"
+        "Credits",
+        "GameOver"
     ],
     "start_mode": "Menu",
     "docs": [],
@@ -29,7 +30,8 @@
         "blip_12_sound": "blip-12.sound.json",
         "title_sprite": "title.sprite.json",
         "bgmusic_menu_sound": "bgmusic-menu.sound.json",
-        "bgmusic_menu_to_game_sound": "bgmusic-menu-to-game.sound.json"
+        "bgmusic_menu_to_game_sound": "bgmusic-menu-to-game.sound.json",
+        "bgmusic_ending_sound": "bgmusic-ending.sound.json"
     },
     "version": 1,
     "min_players": 1,

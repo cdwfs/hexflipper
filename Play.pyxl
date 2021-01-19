@@ -5,6 +5,7 @@ Play
 let map
 let player_types = []
 let player_hexes = []
+let player_scores = []
 let disable_input = false
 const PLAYER_COUNT = 4 // players are skipped if player_types[i] == PLAYER_TYPE_NONE
 const PLAYER_NEUTRAL = -1
@@ -33,6 +34,7 @@ const PLAYER_PREVIEW_MAP_COORDS = [
     xy(3,2),
     xy(12,8),
     ]
+const NUM_BOARD_HEXES = 61
 const VALID_HEX_COORD_MASK = [
     0b0000000000000000,
     0b0000001111100000,
@@ -125,10 +127,15 @@ def advance_to_next_player():
     while player_types[current_player] == PLAYER_TYPE_NONE:
         current_player = (current_player+1) % 4
 
-def enter_menu_mode(data):
-    reset_post_effects()
-    set_mode(Menu) because "Returned to main menu"
-    
+// Need a special fade-out function here, since we don't know exactly how many frames
+// it will take to reach the target point in the music.
+def at_beat0_enter_gameover(frames_left, total_frames, data):
+    if bgm_beat_in_measure == 0 and bgm_beat_ff:
+        reset_post_effects()
+        // Since this hook runs forever, make sure to remove it now that we're done!
+        remove_frame_hooks_by_mode(Play)
+        set_mode(GameOver, player_types, player_scores) because "Game finished"
+
 let pulse_hex_scale = 1
 
 enter(game_info)
@@ -142,6 +149,7 @@ set_random_seed() // default is time-based
 player_hexes = [xy(1,9), xy(9,1), xy(5,1), xy(5,9)]
 player_current_moves = [0,0,0,0]
 player_next_moves = [0,0,0,0]
+player_scores = [0,0,0,0]
 
 set_transform(xy(-48, SCREEN_SIZE.y + 8), xy(1, -1))
 
@@ -157,6 +165,7 @@ for i < PLAYER_COUNT:
         continue
     // Players start on their own territory
     set_cell_owner_hex_coord(player_hexes[i], i)
+    player_scores[i] += 1
     // random starting moves for each player
     player_current_moves[i] = generate_move_code()
     player_next_moves[i] = generate_move_code()
@@ -190,7 +199,6 @@ frame
 // reactive-music stuff goes here
 //
 bgm_update()
-
 local:
     const sq3 = sqrt(3)
     const verts = [xy(0,2), xy(-sq3, 1), xy(-sq3,-1), xy(0,-2), xy(sq3,-1), xy(sq3,1)]
@@ -212,13 +220,12 @@ local:
     postfx.bloom = -((bgm_measure_t-1)^9)
     set_post_effects(postfx)
 
+// Check for victory
+if player_scores[0] + player_scores[1] + player_scores[2] + player_scores[3] >= NUM_BOARD_HEXES:
+    add_frame_hook(at_beat0_enter_gameover, nil, infinity, Play, {})
+
 // handle dpad input
 if not disable_input:
-    // DEBUG: test returning to the main menu if (e) and (f) are pressed together
-    if gamepad_array[0].e != 0 and gamepad_array[0].f != 0:
-        disable_input = true
-        add_frame_hook(fade_out, enter_menu_mode, 30, ∅, {})
-
     for i < PLAYER_COUNT:
         if player_types[i] == PLAYER_TYPE_NONE:
             continue
@@ -242,6 +249,7 @@ if not disable_input:
                     const neighbor_hex = player_hex + HEX_COORD_NEIGHBOR_OFFSETS[neighbor]
                     if get_cell_owner_hex_coord(neighbor_hex) == PLAYER_NEUTRAL:
                         set_cell_owner_hex_coord(neighbor_hex, current_player)
+                        player_scores[current_player] += 1
             // advance current player
             advance_to_next_player()
             // move current players next move to their current move and generate a new next move
