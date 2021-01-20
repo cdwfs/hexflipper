@@ -202,6 +202,14 @@ def get_best_move_hex(player_id):
                 best_flips = flips
     return {hex:best_hc, flips:best_flips}
 
+let cpu_move_sequence = nil
+def move_cpu_player():
+    let best_move = get_best_move_hex(current_player)
+    player_hexes[current_player] = best_move.hex
+def commit_cpu_player():
+    current_player_move_committed = true
+    
+
 enter(game_info)
 ────────────────────────────────────────────────────────────────────────
 
@@ -315,17 +323,18 @@ if not disable_input:
     if player_types[current_player] == PLAYER_TYPE_HUMAN:
         if gamepad_array[current_player].aa:
             current_player_move_committed = true
-    // CPU players just warp to their best move instantly
-    //todo("delay this logic until the next bass beat")
-    if player_types[current_player] == PLAYER_TYPE_CPU:
-        let best_move = get_best_move_hex(current_player)
-        player_hexes[current_player] = best_move.hex
-        current_player_move_committed = true
+    
+    // CPU players enqueue their moves for future frames, so they don't just finish instantly
+    if player_types[current_player] == PLAYER_TYPE_CPU and cpu_move_sequence == nil:
+        cpu_move_sequence = sequence(CPU_MOVE_FRAMES/2, move_cpu_player,
+            (CPU_MOVE_FRAMES+1)/2, commit_cpu_player)
+
     
     // Handle a newly-committed move
     const player_hex = player_hexes[current_player]
     if current_player_move_committed:
         current_player_move_committed = false
+        cpu_move_sequence = nil
         // Can only flip on a cell you own
         if get_cell_owner_hex_coord(player_hex) ≠ current_player:
             play_sound(blip_12_sound) // error
