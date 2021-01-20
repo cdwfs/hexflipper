@@ -147,7 +147,28 @@ def at_beat0_enter_gameover(frames_left, total_frames, data):
         remove_frame_hooks_by_mode(Play)
         set_mode(GameOver, player_types, player_scores) because "Game finished"
 
-let pulse_hex_scale = 1
+let pulsing_gizmos = []
+let spinning_gizmos = []
+
+let BD_BEATS = []
+let SD_BEATS = []
+def draw_gizmos() preserving_transform:
+    reset_transform()
+    const sq3 = sqrt(3)
+    const verts = [xy(0,2), xy(-sq3, 1), xy(-sq3,-1), xy(0,-2), xy(sq3,-1), xy(sq3,1)]
+    const hex_poly_args = {vertex_array:verts, z:-10,}
+    for gizmo in spinning_gizmos:
+        const theta = clamp((3*bgm_measure_t)^3,0,1) * pi/3
+        draw_poly({pos:gizmo.pos, scale:gizmo.scale, angle:theta, outline:gizmo.outline, ...hex_poly_args})
+    for gizmo in pulsing_gizmos:
+        const b = bgm_beat % 48
+        let beats = if gizmo.style == 0 then BD_BEATS else SD_BEATS
+        if bgm_beat_ff && find(beats, b) != nil:
+            gizmo.scale = 2
+        else:
+            gizmo.scale -= 0.02
+        draw_poly({pos:gizmo.pos, scale:10*xy(gizmo.scale, gizmo.scale), angle:gizmo.angle, outline:gizmo.outline, ...hex_poly_args})
+
 
 enter(game_info)
 ────────────────────────────────────────────────────────────────────────
@@ -161,6 +182,32 @@ player_hexes = [xy(1,9), xy(9,1), xy(5,1), xy(5,9)]
 player_current_moves = [0,0,0,0]
 player_next_moves = [0,0,0,0]
 player_scores = [0,0,0,0]
+
+// construct bass/snare beat lists
+const RAW_BD_BEATS = [
+    [0,2,5,7,8,11,],
+    [0,2,5,7,],
+    [0,2,5,7,11,],
+    [0,2,5,7,],
+    ]
+const RAW_SD_BEATS = [
+    [4,9,10,],
+    [4,9,10,11],
+    [4,9,10,],
+    [4,9,10,11],
+    ]
+for beats at measure in RAW_BD_BEATS:
+    for b in beats:
+        push(BD_BEATS, 12*measure+b)
+for beats at measure in RAW_SD_BEATS:
+    for b in beats:
+        push(SD_BEATS, 12*measure+b)
+
+// Spawn gizmos
+push(spinning_gizmos, {pos:xy(20% SCREEN_SIZE.x, 10% SCREEN_SIZE.y), scale:xy(10,10), outline:#800000})
+push(spinning_gizmos, {pos:xy(95% SCREEN_SIZE.x, 65% SCREEN_SIZE.y), scale:xy(10,10), outline:#202080})
+push(pulsing_gizmos, {pos:xy(10% SCREEN_SIZE.x, 80% SCREEN_SIZE.y), style:0,  outline:#FF4080})
+push(pulsing_gizmos, {pos:xy(10% SCREEN_SIZE.x, 80% SCREEN_SIZE.y), angle:π/2, style:1,  outline:#404080})
 
 set_transform(xy(-48, SCREEN_SIZE.y + 8), xy(1, -1))
 
@@ -212,22 +259,6 @@ frame
 //
 bgm_update()
 local:
-    const sq3 = sqrt(3)
-    const verts = [xy(0,2), xy(-sq3, 1), xy(-sq3,-1), xy(0,-2), xy(sq3,-1), xy(sq3,1)]
-    const hex_poly_args = {vertex_array:verts, color:rgba(0,0,0,0), outline:#f,}
-    // spinny hex
-    const theta = clamp((3*bgm_measure_t)^3,0,1) * pi/3
-    draw_poly({pos:xy(100,100), scale:xy(10,10), angle:theta, ...hex_poly_args})
-    // pulsing hex
-    const b = bgm_beat % 48
-    const bd = [0,2,5,7,8,11, 12,14,17,19, 24,26,29,31,35, 36,38,41,43,] 
-    const sd = [4,9,10, 16,21,22,23, 28,33,34, 40,45,46,47,] 
-    if bgm_beat_ff && find(sd, b) != nil:
-        pulse_hex_scale = 2
-    else:
-        pulse_hex_scale -= 0.02
-    draw_poly({pos:xy(100,200), scale:10*xy(pulse_hex_scale, pulse_hex_scale), ...hex_poly_args})
-    
     let postfx = get_post_effects()
     postfx.bloom = -((bgm_measure_t-1)^9)
     set_post_effects(postfx)
@@ -286,6 +317,8 @@ if not disable_input:
 
 // draw things
 draw_hex_map(map)
+draw_gizmos()
+//bgm_draw_debug(10)
 
 for i < PLAYER_COUNT:
     if player_types[i] == PLAYER_TYPE_NONE:
@@ -302,5 +335,3 @@ for neighbor < 6:
         const arrow_sprite = if (player_current_moves[current_player] & (1<<(neighbor+6))) == 0 then ARROW_SPRITES[neighbor] else ARROW2_SPRITES[neighbor]
         draw_sprite_on_hex_map(arrow_sprite.animation.frame(mode_frames),
             transform_hex_to_map_coord(arrow_hex))
-// reactive music debug overlay
-bgm_draw_debug(10)
