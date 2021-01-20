@@ -44,7 +44,7 @@ enter
 disable_input = false
 entering_game = false
 current_player = 0
-player_types = [PLAYER_TYPE_HUMAN, PLAYER_TYPE_HUMAN, PLAYER_TYPE_NONE, PLAYER_TYPE_NONE]
+player_types = [PLAYER_TYPE_HUMAN, PLAYER_TYPE_CPU, PLAYER_TYPE_NONE, PLAYER_TYPE_NONE]
 
 frame
 ────────────────────────────────────────────────────────────────────────
@@ -58,7 +58,7 @@ if not disable_input:
     // Move cursor up/down to choose the type of the current player
     if gamepad_array[0].yy:
         play_sound(CURSOR_MOVE_SOUND)
-        const player_type_count = 2
+        const player_type_count = 3
         player_types[current_player] = (player_types[current_player] + player_type_count + gamepad_array[0].yy) % player_type_count
     // Push A to start the game
     if gamepad_array[0].aa:

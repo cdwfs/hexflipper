@@ -133,6 +133,7 @@ def generate_move_code():
 
 // turn-taking
 let current_player = -1
+let current_player_move_committed = false
 def advance_to_next_player():
     current_player = (current_player+1) % 4
     while player_types[current_player] == PLAYER_TYPE_NONE:
@@ -169,6 +170,37 @@ def draw_gizmos() preserving_transform:
             gizmo.scale -= 0.02
         draw_poly({pos:gizmo.pos, scale:10*xy(gizmo.scale, gizmo.scale), angle:gizmo.angle, outline:gizmo.outline, ...hex_poly_args})
 
+def get_best_move_hex(player_id):
+    let best_hc = player_hexes[player_id]
+    let best_flips = 0
+    const move = player_current_moves[player_id]
+    for x < map.size.x:
+        for y < map.size.y:
+            const mc = xy(x,y)
+            // only consider valid cells for this player to move
+            if get_cell_owner_map_coord(mc) != player_id:
+                continue
+            // count how many neighboring cells would be flipped
+            const hc = transform_map_coord_to_hex(mc)
+            let flips = 0
+            for neighbor < 6:
+                if (move & (1<<neighbor)) ≠ 0:
+                    const neighbor_hex = hc + HEX_COORD_NEIGHBOR_OFFSETS[neighbor]
+                    const is_arrow2 = (move & (1<<(neighbor+6))) ≠ 0
+                    const neighbor_hex_owner = get_cell_owner_hex_coord(neighbor_hex)
+                    // out-of-bounds hexes can't be flipped
+                    if neighbor_hex_owner == INVALID_HEX:
+                        continue
+                    // Normal arrows can only flip neutral tiles
+                    else if neighbor_hex_owner == PLAYER_NEUTRAL:
+                        flips += 1
+                    // "super" arrows can flip any tiles
+                    else if is_arrow2 and neighbor_hex_owner != player_id:
+                        flips += 1
+            if flips > best_flips:
+                best_hc = hc
+                best_flips = flips
+    return {hex:best_hc, flips:best_flips}
 
 enter(game_info)
 ────────────────────────────────────────────────────────────────────────
@@ -237,6 +269,7 @@ for i < PLAYER_COUNT:
 
 // reset turn counter
 current_player = 0
+current_player_move_committed = false
 
 disable_input = false
 
@@ -270,16 +303,29 @@ if player_scores[0] + player_scores[1] + player_scores[2] + player_scores[3] >= 
 // handle dpad input
 if not disable_input:
     for i < PLAYER_COUNT:
-        if player_types[i] == PLAYER_TYPE_NONE:
+        if player_types[i] != PLAYER_TYPE_HUMAN:
             continue
+        // any player can move around the board at any time
         const new_hex_coord = xy(player_hexes[i].x + gamepad_array[i].xx,
             player_hexes[i].y + gamepad_array[i].yy)
         if is_valid_board_hex(new_hex_coord):
             player_hexes[i] = new_hex_coord;
     
     // Current player can push A to commit their move
+    if player_types[current_player] == PLAYER_TYPE_HUMAN:
+        if gamepad_array[current_player].aa:
+            current_player_move_committed = true
+    // CPU players just warp to their best move instantly
+    //todo("delay this logic until the next bass beat")
+    if player_types[current_player] == PLAYER_TYPE_CPU:
+        let best_move = get_best_move_hex(current_player)
+        player_hexes[current_player] = best_move.hex
+        current_player_move_committed = true
+    
+    // Handle a newly-committed move
     const player_hex = player_hexes[current_player]
-    if gamepad_array[current_player].aa:
+    if current_player_move_committed:
+        current_player_move_committed = false
         // Can only flip on a cell you own
         if get_cell_owner_hex_coord(player_hex) ≠ current_player:
             play_sound(blip_12_sound) // error
@@ -292,12 +338,15 @@ if not disable_input:
                     const neighbor_hex = player_hex + HEX_COORD_NEIGHBOR_OFFSETS[neighbor]
                     const is_arrow2 = (player_current_moves[current_player] & (1<<(neighbor+6))) ≠ 0
                     const neighbor_hex_owner = get_cell_owner_hex_coord(neighbor_hex)
+                    // out-of-bounds hexes can't be flipped
+                    if neighbor_hex_owner == INVALID_HEX:
+                        continue
                     // Normal arrows can only flip neutral tiles
-                    if neighbor_hex_owner == PLAYER_NEUTRAL:
+                    else if neighbor_hex_owner == PLAYER_NEUTRAL:
                         set_cell_owner_hex_coord(neighbor_hex, current_player)
                         player_scores[current_player] += 1
-                    // "super" arrows can flip any tiles
-                    else if is_arrow2:
+                    // "super" arrows can flip other player's tiles
+                    else if is_arrow2 and neighbor_hex_owner != current_player:
                         player_scores[neighbor_hex_owner] -= 1
                         set_cell_owner_hex_coord(neighbor_hex, current_player)
                         player_scores[current_player] += 1
