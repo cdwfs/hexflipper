@@ -88,6 +88,11 @@
                     "value": 1
                 }
             }
+        },
+        "SUPER_ARROW_CHANCE": {
+            "type": "number",
+            "value": 0.25,
+            "description": "Probability of one arrow of a moving being a super-arrow capable of flipping another player's hex [0..1]"
         }
     },
     "screenshot_tag": "HexFlipper",

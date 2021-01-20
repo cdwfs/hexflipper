@@ -40,8 +40,8 @@
             "y": 3
         },
         "territory_neutral": {
-            "x": 0,
-            "y": 7
+            "x": 7,
+            "y": 0
         },
         "overlay_next": {
             "x": 2,
@@ -112,6 +112,72 @@
                 "y": 6
             },
             "frames": 4
-        }
+        },
+        "arrow2_nw": {
+            "start": {
+                "x": 0,
+                "y": 7
+            },
+            "end": {
+                "x": 3,
+                "y": 7
+            },
+            "frames": 4
+        },
+        "arrow2_w": {
+            "start": {
+                "x": 0,
+                "y": 8
+            },
+            "end": {
+                "x": 3,
+                "y": 8
+            },
+            "frames": 4
+        },
+        "arrow2_sw": {
+            "start": {
+                "x": 0,
+                "y": 9
+            },
+            "end": {
+                "x": 3,
+                "y": 9
+            },
+            "frames": 4
+        },
+        "arrow2_ne": {
+            "start": {
+                "x": 4,
+                "y": 7
+            },
+            "end": {
+                "x": 7,
+                "y": 7
+            },
+            "frames": 4
+        },
+        "arrow2_e": {
+            "start": {
+                "x": 4,
+                "y": 8
+            },
+            "end": {
+                "x": 7,
+                "y": 8
+            },
+            "frames": 4
+        },
+        "arrow2_se": {
+            "start": {
+                "x": 4,
+                "y": 9
+            },
+            "end": {
+                "x": 7,
+                "y": 9
+            },
+            "frames": 4
+        },
     }
 }

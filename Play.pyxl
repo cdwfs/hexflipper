@@ -70,6 +70,14 @@ const ARROW_SPRITES = [
     hex_sprite.arrow_w[0],
     hex_sprite.arrow_nw[0],
     ]
+const ARROW2_SPRITES = [
+    hex_sprite.arrow2_ne[0],
+    hex_sprite.arrow2_e[0],
+    hex_sprite.arrow2_se[0],
+    hex_sprite.arrow2_sw[0],
+    hex_sprite.arrow2_w[0],
+    hex_sprite.arrow2_nw[0],
+    ]
 
 // Draw a sprite at the provided map coordinates
 def draw_sprite_on_hex_map(sprite, map_coord, z default 0):
@@ -118,6 +126,9 @@ def generate_move_code():
     const set_bits = slice(shuffled([0,1,2,3,4,5]), 0, bit_count)
     for b in set_bits:
         move ∪= 1<<b
+    // Random chance of one direction being able to flip non-neutral tiles
+    if ξ < SUPER_ARROW_CHANCE:
+        move ∪= 1<<(set_bits[0]+6)
     return move
 
 // turn-taking
@@ -173,8 +184,9 @@ for i < PLAYER_COUNT:
     let preview_mc = PLAYER_PREVIEW_MAP_COORDS[i]
     let preview_hc = transform_map_coord_to_hex(preview_mc)
     for neighbor < 6:
+        const arrow_sprite = if (player_next_moves[i] & (1<<(neighbor+6))) == 0 then ARROW_SPRITES[neighbor] else ARROW2_SPRITES[neighbor]
         map_set_sprite_by_hex(map, preview_hc + HEX_COORD_NEIGHBOR_OFFSETS[neighbor],
-            if (player_next_moves[i] & (1<<neighbor)) ≠ 0 then ARROW_SPRITES[neighbor] else ∅)
+            if (player_next_moves[i] & (1<<neighbor)) ≠ 0 then arrow_sprite else ∅)
 
 // reset turn counter
 current_player = 0
@@ -243,11 +255,19 @@ if not disable_input:
         else:
             // successful flip
             play_sound(PLAYER_CLICK_SOUNDS[current_player])
-            // change neighboring neutral tiles to be owned by this player
+            // change neighboring tiles to be owned by this player
             for neighbor < 6:
                 if (player_current_moves[current_player] & (1<<neighbor)) ≠ 0:
                     const neighbor_hex = player_hex + HEX_COORD_NEIGHBOR_OFFSETS[neighbor]
-                    if get_cell_owner_hex_coord(neighbor_hex) == PLAYER_NEUTRAL:
+                    const is_arrow2 = (player_current_moves[current_player] & (1<<(neighbor+6))) ≠ 0
+                    const neighbor_hex_owner = get_cell_owner_hex_coord(neighbor_hex)
+                    // Normal arrows can only flip neutral tiles
+                    if neighbor_hex_owner == PLAYER_NEUTRAL:
+                        set_cell_owner_hex_coord(neighbor_hex, current_player)
+                        player_scores[current_player] += 1
+                    // "super" arrows can flip any tiles
+                    else if is_arrow2:
+                        player_scores[neighbor_hex_owner] -= 1
                         set_cell_owner_hex_coord(neighbor_hex, current_player)
                         player_scores[current_player] += 1
             // advance current player
@@ -259,8 +279,9 @@ if not disable_input:
             let preview_mc = PLAYER_PREVIEW_MAP_COORDS[current_player]
             let preview_hc = transform_map_coord_to_hex(preview_mc)
             for neighbor < 6:
+                const arrow_sprite = if (player_next_moves[current_player] & (1<<(neighbor+6))) == 0 then ARROW_SPRITES[neighbor] else ARROW2_SPRITES[neighbor]
                 map_set_sprite_by_hex(map, preview_hc + HEX_COORD_NEIGHBOR_OFFSETS[neighbor],
-                    if (player_next_moves[current_player] & (1<<neighbor)) ≠ 0 then ARROW_SPRITES[neighbor] else ∅)
+                    if (player_next_moves[current_player] & (1<<neighbor)) ≠ 0 then arrow_sprite else ∅)
 
 
 // draw things
@@ -278,7 +299,8 @@ for i < PLAYER_COUNT:
 for neighbor < 6:
     if (player_current_moves[current_player] & (1<<neighbor)) ≠ 0:
         const arrow_hex = player_hexes[current_player] + HEX_COORD_NEIGHBOR_OFFSETS[neighbor]
-        draw_sprite_on_hex_map(ARROW_SPRITES[neighbor].animation.frame(mode_frames),
+        const arrow_sprite = if (player_current_moves[current_player] & (1<<(neighbor+6))) == 0 then ARROW_SPRITES[neighbor] else ARROW2_SPRITES[neighbor]
+        draw_sprite_on_hex_map(arrow_sprite.animation.frame(mode_frames),
             transform_hex_to_map_coord(arrow_hex))
 // reactive music debug overlay
 bgm_draw_debug(10)
