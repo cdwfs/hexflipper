@@ -271,7 +271,8 @@ for i < PLAYER_COUNT:
         continue
     // Draw players on map
     draw_sprite_on_hex_map(PLAYER_OVERLAY_SPRITES[i], transform_hex_to_map_coord(player_hexes[i]))
-    // Draw "next" overlay on preview hexes
+    // Draw preview hexes for active players
+    draw_sprite_on_hex_map(PLAYER_TERRITORY_SPRITES[i], PLAYER_PREVIEW_MAP_COORDS[i], 1)
     draw_sprite_on_hex_map(hex_sprite.overlay_next, PLAYER_PREVIEW_MAP_COORDS[i], 1)
 // Draw current player's move around their hex
 for neighbor < 6:
