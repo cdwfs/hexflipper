@@ -12,10 +12,10 @@ const PLAYER_NEUTRAL = -1
 const INVALID_HEX = -2
 const PLAYER_START_HEXES = [xy(1,9), xy(9,1), xy(5,1), xy(5,9)]
 const PLAYER_CLICK_SOUNDS = [
-    {sound:blip_05_sound, pan: -50%, pitch:80%, volume: 100%},
-    {sound:blip_05_sound, pan: +50%, pitch:180%, volume: 100%},
-    {sound:blip_07_sound, pan: -50%, pitch:100%, volume: 120%},
-    {sound:blip_07_sound, pan: +50%, pitch:135%, volume: 100%},
+    {sound:blip_05_sound, pan: -50%, pitch:85%, volume: 100%},
+    {sound:blip_05_sound, pan: +50%, pitch:170%, volume: 100%},
+    {sound:blip_07_sound, pan: -50%, pitch:101%, volume: 120%},
+    {sound:blip_07_sound, pan: +50%, pitch:128%, volume: 100%},
     ]
 const PLAYER_TERRITORY_SPRITES = [
     hex_sprite.territory_p1,
