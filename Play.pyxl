@@ -10,6 +10,7 @@ let disable_input = false
 const PLAYER_COUNT = 4 // players are skipped if player_types[i] == PLAYER_TYPE_NONE
 const PLAYER_NEUTRAL = -1
 const INVALID_HEX = -2
+const PLAYER_START_HEXES = [xy(1,9), xy(9,1), xy(5,1), xy(5,9)]
 const PLAYER_CLICK_SOUNDS = [
     {sound:blip_05_sound, pan: -50%, pitch:80%, volume: 100%},
     {sound:blip_05_sound, pan: +50%, pitch:180%, volume: 100%},
@@ -171,7 +172,7 @@ def draw_gizmos() preserving_transform:
         draw_poly({pos:gizmo.pos, scale:10*xy(gizmo.scale, gizmo.scale), angle:gizmo.angle, outline:gizmo.outline, ...hex_poly_args})
 
 def get_best_move_hex(player_id):
-    let best_hc = player_hexes[player_id]
+    let best_hc = PLAYER_START_HEXES[player_id]
     let best_flips = 0
     const move = player_current_moves[player_id]
     for x < map.size.x:
@@ -262,7 +263,7 @@ for i < PLAYER_COUNT:
     if player_types[i] == PLAYER_TYPE_NONE:
         continue
     // Players start on their own territory
-    set_cell_owner_hex_coord(player_hexes[i], i)
+    set_cell_owner_hex_coord(PLAYER_START_HEXES[i], i)
     player_scores[i] += 1
     // random starting moves for each player
     player_current_moves[i] = generate_move_code()
