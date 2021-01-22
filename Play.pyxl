@@ -216,6 +216,7 @@ def get_winner(scores):
 def get_best_move_hex(player_id):
     let best_hc = nil
     let best_flips = -1
+    let best_super_flips = 0
     const move = player_current_moves[player_id]
     for x < map.size.x:
         for y < map.size.y:
@@ -227,6 +228,7 @@ def get_best_move_hex(player_id):
             const hc = transform_map_coord_to_hex(mc)
             let new_scores = clone(player_scores)
             let flips = 0
+            let super_flips = 0
             for neighbor < 6:
                 if (move & (1<<neighbor)) ≠ 0:
                     const neighbor_hex = hc + HEX_COORD_NEIGHBOR_OFFSETS[neighbor]
@@ -242,15 +244,17 @@ def get_best_move_hex(player_id):
                     // "super" arrows can flip any tiles
                     else if is_arrow2 and neighbor_hex_owner != player_id:
                         flips += 1
+                        super_flips += 1
                         new_scores[player_id] += 1
                         new_scores[neighbor_hex_owner] -= 1
             // If this move would cause this player to win, then obviously do that one!
             if get_winner(new_scores) == player_id:
                 return {hex:hc, flips:flips}
-            // Otherwise, save this move if it's the best candidate so far
-            if flips > best_flips:
+            // Otherwise, save this move if it's the best candidate so far.
+            if flips > best_flips or (flips == best_flips and super_flips > best_super_flips):
                 best_hc = hc
                 best_flips = flips
+                best_super_flips = super_flips
     return {hex:best_hc, flips:best_flips}
 
 let cpu_move_sequence = nil
