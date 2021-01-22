@@ -163,7 +163,7 @@ def draw_gizmos() preserving_transform:
         const theta = clamp((3*bgm_measure_t)^3,0,1) * pi/3
         draw_poly({pos:gizmo.pos, scale:gizmo.scale, angle:theta, outline:gizmo.outline, ...hex_poly_args})
     for gizmo in pulsing_gizmos:
-        const b = bgm_beat % 48
+        const b = bgm_beat % (64*12)
         let beats = if gizmo.style == 0 then BD_BEATS else SD_BEATS
         if bgm_beat_ff && find(beats, b) != nil:
             gizmo.scale = 2
@@ -225,18 +225,6 @@ player_next_moves = [0,0,0,0]
 player_scores = [0,0,0,0]
 
 // construct bass/snare beat lists
-const RAW_BD_BEATS = [
-    [0,2,5,7,8,11,],
-    [0,2,5,7,],
-    [0,2,5,7,11,],
-    [0,2,5,7,],
-    ]
-const RAW_SD_BEATS = [
-    [4,9,10,],
-    [4,9,10,11],
-    [4,9,10,],
-    [4,9,10,11],
-    ]
 for beats at measure in RAW_BD_BEATS:
     for b in beats:
         push(BD_BEATS, 12*measure+b)
@@ -283,8 +271,7 @@ current_player_move_committed = false
 disable_input = false
 
 let loops = [
-    {sound:bgmusic_loop1_sound, loop:true, volume:100%},
-    {sound:bgmusic_loop2_sound, loop:true, volume:0%},
+    {sound:bgmusic_sound, loop:true, volume:100%},
     ]
 bgm_start(loops)
 
