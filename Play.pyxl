@@ -325,8 +325,16 @@ if bgm_loop_measure ≥ 24 && bgm_loop_measure < 32:
     set_post_effects(postfx)
 
 
-// Check for victory
-if player_scores[0] + player_scores[1] + player_scores[2] + player_scores[3] >= NUM_BOARD_HEXES:
+// Check for victory conditions:
+// 1. No neutral hexes left
+let all_hexes_claimed = player_scores[0] + player_scores[1] + player_scores[2] + player_scores[3] >= NUM_BOARD_HEXES
+// 2. Only one player has territory on the board
+let players_with_nonzero_scores = 0
+for i < PLAYER_COUNT:
+    if player_types[i] ≠ PLAYER_TYPE_NONE and player_scores[i] > 0:
+        players_with_nonzero_scores += 1
+// If either is true, advance to the game over screen at the next measure.
+if all_hexes_claimed or players_with_nonzero_scores ≤ 1:
     add_frame_hook(at_beat0_enter_gameover, nil, infinity, Play, {})
 
 // handle dpad input
