@@ -96,7 +96,7 @@
         },
         "CPU_MOVE_FRAMES": {
             "type": "number",
-            "value": 30,
+            "value": 24,
             "description": "How long does each CPU player take to make its move? (it will move its cursor at 50% and commit the move at 100%)"
         }
     },
