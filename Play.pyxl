@@ -108,7 +108,21 @@ def is_valid_board_hex(hex_coord):
 // Generate a move code. Not all moves are equally likely.
 let player_current_moves = []
 let player_next_moves = []
-def generate_move_code():
+def generate_move_code(player_id):
+    // Sweep all cells and figure out which directions a player COULD potentially
+    // capture a tile, so we can favor moves containing that direction if possible.
+    let valid_capture_mask = 0b000000
+    for x < map.size.x:
+        for y < map.size.y:
+            const mc = xy(x,y)
+            // only consider valid cells for this player to move
+            if get_cell_owner_map_coord(mc) != player_id:
+                continue
+            const hc = transform_map_coord_to_hex(mc)
+            for neighbor < 6:
+                const neighbor_owner = get_cell_owner_hex_coord(hc + HEX_COORD_NEIGHBOR_OFFSETS[neighbor])
+                if neighbor_owner == PLAYER_NEUTRAL:
+                    valid_capture_mask ∪= (1<<neighbor)
     const p = ξ
     let bit_count = 0
     if p < 0.50:
@@ -127,11 +141,17 @@ def generate_move_code():
     const set_bits = slice(shuffled([0,1,2,3,4,5]), 0, bit_count)
     for b in set_bits:
         move ∪= 1<<b
+    if (move bitand valid_capture_mask) == 0:
+        let valid_capture_bits = []
+        for i < 6:
+            if valid_capture_mask bitand (1<<i):
+                push(valid_capture_bits, i)
+        move ∪= (1 << random_value(valid_capture_bits))
     // Random chance of one direction being able to flip non-neutral tiles
     // Chance of a super arrow increases based on how far behind the current player is from the lead.
     let num_players_with_higher_score = 0
     for i < 4:
-        if player_scores[i] > player_scores[current_player]:
+        if player_scores[i] > player_scores[player_id]:
             num_players_with_higher_score += 1
     if ξ < (BASE_SUPER_ARROW_CHANCE + num_players_with_higher_score*SUPER_ARROW_CHANCE_BOOST):
         move ∪= 1<<(set_bits[0]+6)
@@ -149,7 +169,7 @@ def advance_to_next_player():
         current_player = (current_player+1) % 4
     // move current players next move to their current move and generate a new next move
     player_current_moves[current_player] = player_next_moves[current_player]
-    player_next_moves[current_player] = generate_move_code()
+    player_next_moves[current_player] = generate_move_code(current_player)
     // Update player "next move" previews
     let preview_mc = PLAYER_PREVIEW_MAP_COORDS[current_player]
     let preview_hc = transform_map_coord_to_hex(preview_mc)
@@ -315,8 +335,8 @@ for i < PLAYER_COUNT:
     set_cell_owner_hex_coord(PLAYER_START_HEXES[i], i)
     player_scores[i] += 1
     // random starting moves for each player
-    player_current_moves[i] = generate_move_code()
-    player_next_moves[i] = generate_move_code()
+    player_current_moves[i] = generate_move_code(i)
+    player_next_moves[i] = generate_move_code(i)
     // Initialize each player's "next move" preview
     let preview_mc = PLAYER_PREVIEW_MAP_COORDS[i]
     let preview_hc = transform_map_coord_to_hex(preview_mc)
