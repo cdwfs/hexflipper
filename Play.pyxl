@@ -283,6 +283,9 @@ for i < PLAYER_COUNT:
 
 // reset turn counter
 current_player = 0
+// player 0 may not actually be valid, so advance until we find one who is
+while player_types[current_player] == PLAYER_TYPE_NONE:
+    current_player += 1
 current_player_move_committed = false
 
 disable_input = false
