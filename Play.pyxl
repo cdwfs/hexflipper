@@ -243,6 +243,9 @@ def get_best_move_hex(player_id):
     let best_flips = -1
     let best_super_flips = 0
     const move = player_current_moves[player_id]
+    // Build a list of all hexes owned by the player.
+    // (yeah we could maintain this incrementally instead, whatever, it's fine.
+    let player_hexes = []
     for x < map.size.x:
         for y < map.size.y:
             const mc = xy(x,y)
@@ -251,35 +254,40 @@ def get_best_move_hex(player_id):
                 continue
             // count how many neighboring cells would be flipped
             const hc = transform_map_coord_to_hex(mc)
-            let new_scores = clone(player_scores)
-            let flips = 0
-            let super_flips = 0
-            for neighbor < 6:
-                if (move bitand (1<<neighbor)) ≠ 0:
-                    const neighbor_hex = hc + HEX_COORD_NEIGHBOR_OFFSETS[neighbor]
-                    const is_arrow2 = (move bitand (1<<(neighbor+6))) ≠ 0
-                    const neighbor_hex_owner = get_cell_owner_hex_coord(neighbor_hex)
-                    // out-of-bounds hexes can't be flipped
-                    if neighbor_hex_owner == INVALID_HEX:
-                        continue
-                    // Normal arrows can only flip neutral tiles
-                    else if neighbor_hex_owner == PLAYER_NEUTRAL:
-                        flips += 1
-                        new_scores[player_id] += 1
-                    // "super" arrows can flip any tiles
-                    else if is_arrow2 and neighbor_hex_owner != player_id:
-                        flips += 1
-                        super_flips += 1
-                        new_scores[player_id] += 1
-                        new_scores[neighbor_hex_owner] -= 1
-            // If this move would cause this player to win, then obviously do that one!
-            if get_winner(new_scores) == player_id:
-                return {hex:hc, flips:flips}
-            // Otherwise, save this move if it's the best candidate so far.
-            if flips > best_flips or (flips == best_flips and super_flips > best_super_flips):
-                best_hc = hc
-                best_flips = flips
-                best_super_flips = super_flips
+            push(player_hexes, hc)
+    assert(size(player_hexes) > 0, "players with no hexes shouldn't get into get_best_move_hex()!")
+    // Randomize the iteration order to avoid any bias for which move is picked
+    shuffle(player_hexes)
+    for hc in player_hexes:
+        let new_scores = clone(player_scores)
+        let flips = 0
+        let super_flips = 0
+        for neighbor < 6:
+            if (move bitand (1<<neighbor)) ≠ 0:
+                const neighbor_hex = hc + HEX_COORD_NEIGHBOR_OFFSETS[neighbor]
+                const is_arrow2 = (move bitand (1<<(neighbor+6))) ≠ 0
+                const neighbor_hex_owner = get_cell_owner_hex_coord(neighbor_hex)
+                // out-of-bounds hexes can't be flipped
+                if neighbor_hex_owner == INVALID_HEX:
+                    continue
+                // Normal arrows can only flip neutral tiles
+                else if neighbor_hex_owner == PLAYER_NEUTRAL:
+                    flips += 1
+                    new_scores[player_id] += 1
+                // "super" arrows can flip any tiles
+                else if is_arrow2 and neighbor_hex_owner != player_id:
+                    flips += 1
+                    super_flips += 1
+                    new_scores[player_id] += 1
+                    new_scores[neighbor_hex_owner] -= 1
+        // If this move would cause this player to win, then obviously do that one!
+        if get_winner(new_scores) == player_id:
+            return {hex:hc, flips:flips}
+        // Otherwise, save this move if it's the best candidate so far.
+        if flips > best_flips or (flips == best_flips and super_flips > best_super_flips):
+            best_hc = hc
+            best_flips = flips
+            best_super_flips = super_flips
     return {hex:best_hc, flips:best_flips}
 
 let cpu_move_sequence = nil
