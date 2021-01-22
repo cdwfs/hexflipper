@@ -62,8 +62,12 @@ if not disable_input:
         player_types[current_player] = (player_types[current_player] + player_type_count + gamepad_array[0].yy) % player_type_count
     // Push A to start the game
     if gamepad_array[0].aa:
-        // Must have at least one player
-        if player_types[0] bitor player_types[1] bitor player_types[2] bitor player_types[3] != 0:
+        // Must have at least two players
+        let player_count = 0
+        for i < 4:
+            if player_types[i] ≠ PLAYER_TYPE_NONE:
+                player_count += 1
+        if player_count ≥ 2:
             disable_input = true
             play_sound(CURSOR_ACCEPT_SOUND)
             fade_frame_count = 120
