@@ -150,26 +150,33 @@ def at_beat0_enter_gameover(frames_left, total_frames, data):
         set_mode(GameOver, player_types, player_scores) because "Game finished"
 
 let pulsing_gizmos = []
-let spinning_gizmos = []
 
 let BD_BEATS = []
 let SD_BEATS = []
+let bass_gizmo_scale = 0
+let snare_gizmo_scale = 0
 def draw_gizmos() preserving_transform:
     reset_transform()
     const sq3 = sqrt(3)
     const verts = [xy(0,2), xy(-sq3, 1), xy(-sq3,-1), xy(0,-2), xy(sq3,-1), xy(sq3,1)]
     const hex_poly_args = {vertex_array:verts, z:-10,}
-    for gizmo in spinning_gizmos:
-        const theta = clamp((3*bgm_measure_t)^3,0,1) * pi/3
-        draw_poly({pos:gizmo.pos, scale:gizmo.scale, angle:theta, outline:gizmo.outline, ...hex_poly_args})
-    for gizmo in pulsing_gizmos:
-        const b = bgm_beat % (64*12)
-        let beats = if gizmo.style == 0 then BD_BEATS else SD_BEATS
-        if bgm_beat_ff && find(beats, b) != nil:
-            gizmo.scale = 2
-        else:
-            gizmo.scale -= 0.02
-        draw_poly({pos:gizmo.pos, scale:10*xy(gizmo.scale, gizmo.scale), angle:gizmo.angle, outline:gizmo.outline, ...hex_poly_args})
+    const t = bgm_measure + bgm_measure_t
+    const b = bgm_beat % (64*12)
+    local:
+        // Spinning gizmo
+        const theta = clamp((3*bgm_measure_t)^3,0,1) * pi/3 + π/2
+        const p = 50% SCREEN_SIZE + xy(40*sin(π*t), 0)
+        const c = hsv(t % 1,1,1)
+        draw_poly({pos:p, scale:xy(60,60), angle:theta, outline:c, ...hex_poly_args})
+    local:
+        // pulsing bass drum gizmo
+        bass_gizmo_scale = if bgm_beat_ff && find(BD_BEATS, b) != ∅ then 80 else bass_gizmo_scale-0.5
+        draw_poly({pos:50% SCREEN_SIZE, angle:π/2, scale:xy(bass_gizmo_scale,bass_gizmo_scale),
+            outline:#C08080, ...hex_poly_args})
+        // pulsing snare drum gizmo
+        snare_gizmo_scale = if bgm_beat_ff && find(SD_BEATS, b) != ∅ then 80 else snare_gizmo_scale-0.7
+        draw_poly({pos:50% SCREEN_SIZE, angle:0, scale:xy(snare_gizmo_scale,snare_gizmo_scale),
+            outline:#80C080, ...hex_poly_args})
 
 def get_best_move_hex(player_id):
     let best_hc = PLAYER_START_HEXES[player_id]
@@ -231,12 +238,6 @@ for beats at measure in RAW_BD_BEATS:
 for beats at measure in RAW_SD_BEATS:
     for b in beats:
         push(SD_BEATS, 12*measure+b)
-
-// Spawn gizmos
-push(spinning_gizmos, {pos:xy(20% SCREEN_SIZE.x, 10% SCREEN_SIZE.y), scale:xy(10,10), outline:#800000})
-push(spinning_gizmos, {pos:xy(95% SCREEN_SIZE.x, 65% SCREEN_SIZE.y), scale:xy(10,10), outline:#202080})
-push(pulsing_gizmos, {pos:xy(10% SCREEN_SIZE.x, 80% SCREEN_SIZE.y), style:0,  outline:#FF4080})
-push(pulsing_gizmos, {pos:xy(10% SCREEN_SIZE.x, 80% SCREEN_SIZE.y), angle:π/2, style:1,  outline:#404080})
 
 set_transform(xy(-48, SCREEN_SIZE.y + 8), xy(1, -1))
 
