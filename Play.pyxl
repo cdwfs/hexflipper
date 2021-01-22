@@ -294,6 +294,13 @@ for beats at measure in RAW_SD_BEATS:
 
 set_transform(xy(-48, SCREEN_SIZE.y + 8), xy(1, -1))
 
+// reset turn counter
+current_player = 0
+// player 0 may not actually be valid, so advance until we find one who is
+while player_types[current_player] == PLAYER_TYPE_NONE:
+    current_player += 1
+current_player_move_committed = false
+
 map_cell_owner = []
 for x < size(map):
     let new_col = []
@@ -317,13 +324,6 @@ for i < PLAYER_COUNT:
         const arrow_sprite = if (player_next_moves[i] & (1<<(neighbor+6))) == 0 then ARROW_SPRITES[neighbor] else ARROW2_SPRITES[neighbor]
         map_set_sprite_by_hex(map, preview_hc + HEX_COORD_NEIGHBOR_OFFSETS[neighbor],
             if (player_next_moves[i] & (1<<neighbor)) ≠ 0 then arrow_sprite else ∅)
-
-// reset turn counter
-current_player = 0
-// player 0 may not actually be valid, so advance until we find one who is
-while player_types[current_player] == PLAYER_TYPE_NONE:
-    current_player += 1
-current_player_move_committed = false
 
 disable_input = false
 
