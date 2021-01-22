@@ -191,6 +191,26 @@ def draw_gizmos() preserving_transform:
         draw_poly({pos:50% SCREEN_SIZE, angle:0, scale:xy(snare_gizmo_scale,snare_gizmo_scale),
             outline:#C0F0C0, ...hex_poly_args})
 
+// Returns a player ID, or ∅ if nobody has won yet
+def get_winner(scores):
+    // 1. No neutral hexes left
+    const high_score = max(scores[0], scores[1], scores[2], scores[3])
+    if scores[0] + scores[1] + scores[2] + scores[3] == NUM_BOARD_HEXES:
+        for i < PLAYER_COUNT:
+            if scores[i] == high_score:
+                return i
+    // 2. Only one player has territory on the board
+    let players_with_nonzero_scores = 0
+    let winner = ∅
+    for i < PLAYER_COUNT:
+        if player_scores[i] > 0:
+            players_with_nonzero_scores += 1
+            winner = i
+    if players_with_nonzero_scores == 1:
+        return winner
+    // No winner yet
+    return ∅
+
 // Returns a {hex, flips} object. the hex field may be ∅, in which case the player has no valid move and should
 // pass.
 def get_best_move_hex(player_id):
@@ -325,16 +345,8 @@ if bgm_loop_measure ≥ 24 && bgm_loop_measure < 32:
     set_post_effects(postfx)
 
 
-// Check for victory conditions:
-// 1. No neutral hexes left
-let all_hexes_claimed = player_scores[0] + player_scores[1] + player_scores[2] + player_scores[3] >= NUM_BOARD_HEXES
-// 2. Only one player has territory on the board
-let players_with_nonzero_scores = 0
-for i < PLAYER_COUNT:
-    if player_types[i] ≠ PLAYER_TYPE_NONE and player_scores[i] > 0:
-        players_with_nonzero_scores += 1
-// If either is true, advance to the game over screen at the next measure.
-if all_hexes_claimed or players_with_nonzero_scores ≤ 1:
+// Check for victory conditions
+if get_winner(player_scores) ≠ ∅:
     add_frame_hook(at_beat0_enter_gameover, nil, infinity, Play, {})
 
 // handle dpad input
