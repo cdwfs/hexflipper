@@ -128,7 +128,12 @@ def generate_move_code():
     for b in set_bits:
         move ∪= 1<<b
     // Random chance of one direction being able to flip non-neutral tiles
-    if ξ < SUPER_ARROW_CHANCE:
+    // Chance of a super arrow increases based on how far behind the current player is from the lead.
+    let num_players_with_higher_score = 0
+    for i < 4:
+        if player_scores[i] > player_scores[current_player]:
+            num_players_with_higher_score += 1
+    if ξ < (BASE_SUPER_ARROW_CHANCE + num_players_with_higher_score*SUPER_ARROW_CHANCE_BOOST):
         move ∪= 1<<(set_bits[0]+6)
     return move
 

@@ -89,15 +89,20 @@
                 }
             }
         },
-        "SUPER_ARROW_CHANCE": {
-            "type": "number",
-            "value": 0.25,
-            "description": "Probability of one arrow of a moving being a super-arrow capable of flipping another player's hex [0..1]"
-        },
         "CPU_MOVE_FRAMES": {
             "type": "number",
             "value": 24,
             "description": "How long does each CPU player take to make its move? (it will move its cursor at 50% and commit the move at 100%)"
+        },
+        "BASE_SUPER_ARROW_CHANCE": {
+            "type": "number",
+            "value": 0.25,
+            "description": "Probability of one arrow of a moving being a super-arrow capable of flipping another player's hex [0..1]"
+        },
+        "SUPER_ARROW_CHANCE_BOOST": {
+            "type": "number",
+            "value": 0.1,
+            "description": "bias applied to the super-arrow chance for each spot below #1 the player is"
         }
     },
     "screenshot_tag": "HexFlipper",
