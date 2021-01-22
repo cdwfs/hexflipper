@@ -136,9 +136,22 @@ def generate_move_code():
 let current_player = -1
 let current_player_move_committed = false
 def advance_to_next_player():
+    // Advance current player to next non-NULL player whose score is not zero
+    // (the "score is not zero" is necessary to avoid an infinite loop where a player has NO valid moves,
+    // but the board is not yet complete)
     current_player = (current_player+1) % 4
-    while player_types[current_player] == PLAYER_TYPE_NONE:
+    while player_types[current_player] == PLAYER_TYPE_NONE or player_scores[current_player] == 0:
         current_player = (current_player+1) % 4
+    // move current players next move to their current move and generate a new next move
+    player_current_moves[current_player] = player_next_moves[current_player]
+    player_next_moves[current_player] = generate_move_code()
+    // Update player "next move" previews
+    let preview_mc = PLAYER_PREVIEW_MAP_COORDS[current_player]
+    let preview_hc = transform_map_coord_to_hex(preview_mc)
+    for neighbor < 6:
+        const arrow_sprite = if (player_next_moves[current_player] & (1<<(neighbor+6))) == 0 then ARROW_SPRITES[neighbor] else ARROW2_SPRITES[neighbor]
+        map_set_sprite_by_hex(map, preview_hc + HEX_COORD_NEIGHBOR_OFFSETS[neighbor],
+            if (player_next_moves[current_player] & (1<<neighbor)) ≠ 0 then arrow_sprite else ∅)
 
 // Need a special fade-out function here, since we don't know exactly how many frames
 // it will take to reach the target point in the music.
@@ -178,9 +191,11 @@ def draw_gizmos() preserving_transform:
         draw_poly({pos:50% SCREEN_SIZE, angle:0, scale:xy(snare_gizmo_scale,snare_gizmo_scale),
             outline:#C0F0C0, ...hex_poly_args})
 
+// Returns a {hex, flips} object. the hex field may be ∅, in which case the player has no valid move and should
+// pass.
 def get_best_move_hex(player_id):
-    let best_hc = PLAYER_START_HEXES[player_id]
-    let best_flips = 0
+    let best_hc = nil
+    let best_flips = -1
     const move = player_current_moves[player_id]
     for x < map.size.x:
         for y < map.size.y:
@@ -213,6 +228,7 @@ def get_best_move_hex(player_id):
 let cpu_move_sequence = nil
 def move_cpu_player():
     let best_move = get_best_move_hex(current_player)
+    assert(best_move.hex ≠ ∅, "player has NO best move?")
     player_hexes[current_player] = best_move.hex
 def commit_cpu_player():
     current_player_move_committed = true
@@ -363,17 +379,6 @@ if not disable_input:
                         player_scores[current_player] += 1
             // advance current player
             advance_to_next_player()
-            // move current players next move to their current move and generate a new next move
-            player_current_moves[current_player] = player_next_moves[current_player]
-            player_next_moves[current_player] = generate_move_code()
-            // Update player "next move" previews
-            let preview_mc = PLAYER_PREVIEW_MAP_COORDS[current_player]
-            let preview_hc = transform_map_coord_to_hex(preview_mc)
-            for neighbor < 6:
-                const arrow_sprite = if (player_next_moves[current_player] & (1<<(neighbor+6))) == 0 then ARROW_SPRITES[neighbor] else ARROW2_SPRITES[neighbor]
-                map_set_sprite_by_hex(map, preview_hc + HEX_COORD_NEIGHBOR_OFFSETS[neighbor],
-                    if (player_next_moves[current_player] & (1<<neighbor)) ≠ 0 then arrow_sprite else ∅)
-
 
 // draw things
 draw_hex_map(map)
