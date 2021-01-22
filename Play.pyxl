@@ -154,9 +154,9 @@ def advance_to_next_player():
     let preview_mc = PLAYER_PREVIEW_MAP_COORDS[current_player]
     let preview_hc = transform_map_coord_to_hex(preview_mc)
     for neighbor < 6:
-        const arrow_sprite = if (player_next_moves[current_player] & (1<<(neighbor+6))) == 0 then ARROW_SPRITES[neighbor] else ARROW2_SPRITES[neighbor]
+        const arrow_sprite = if (player_next_moves[current_player] bitand (1<<(neighbor+6))) == 0 then ARROW_SPRITES[neighbor] else ARROW2_SPRITES[neighbor]
         map_set_sprite_by_hex(map, preview_hc + HEX_COORD_NEIGHBOR_OFFSETS[neighbor],
-            if (player_next_moves[current_player] & (1<<neighbor)) ≠ 0 then arrow_sprite else ∅)
+            if (player_next_moves[current_player] bitand (1<<neighbor)) ≠ 0 then arrow_sprite else ∅)
 
 // Need a special fade-out function here, since we don't know exactly how many frames
 // it will take to reach the target point in the music.
@@ -188,11 +188,11 @@ def draw_gizmos() preserving_transform:
         draw_poly({pos:p, scale:xy(60,60), angle:theta, outline:c, ...hex_poly_args})
     local:
         // pulsing bass drum gizmo
-        bass_gizmo_scale = if bgm_beat_ff && find(BD_BEATS, b) != ∅ then 80 else bass_gizmo_scale-0.5
+        bass_gizmo_scale = if bgm_beat_ff and find(BD_BEATS, b) != ∅ then 80 else bass_gizmo_scale-0.5
         draw_poly({pos:50% SCREEN_SIZE, angle:π/2, scale:xy(bass_gizmo_scale,bass_gizmo_scale),
             outline:#FFC0C0, ...hex_poly_args})
         // pulsing snare drum gizmo
-        snare_gizmo_scale = if bgm_beat_ff && find(SD_BEATS, b) != ∅ then 80 else snare_gizmo_scale-0.7
+        snare_gizmo_scale = if bgm_beat_ff and find(SD_BEATS, b) != ∅ then 80 else snare_gizmo_scale-0.7
         draw_poly({pos:50% SCREEN_SIZE, angle:0, scale:xy(snare_gizmo_scale,snare_gizmo_scale),
             outline:#C0F0C0, ...hex_poly_args})
 
@@ -235,9 +235,9 @@ def get_best_move_hex(player_id):
             let flips = 0
             let super_flips = 0
             for neighbor < 6:
-                if (move & (1<<neighbor)) ≠ 0:
+                if (move bitand (1<<neighbor)) ≠ 0:
                     const neighbor_hex = hc + HEX_COORD_NEIGHBOR_OFFSETS[neighbor]
-                    const is_arrow2 = (move & (1<<(neighbor+6))) ≠ 0
+                    const is_arrow2 = (move bitand (1<<(neighbor+6))) ≠ 0
                     const neighbor_hex_owner = get_cell_owner_hex_coord(neighbor_hex)
                     // out-of-bounds hexes can't be flipped
                     if neighbor_hex_owner == INVALID_HEX:
@@ -306,7 +306,7 @@ for x < size(map):
     let new_col = []
     for y < size(map[x]):
         let hc = transform_map_coord_to_hex(xy(x,y))
-        new_col.push(if (VALID_HEX_COORD_MASK[hc.y] & (1<<hc.x)) ≠ 0 then PLAYER_NEUTRAL else INVALID_HEX)
+        new_col.push(if (VALID_HEX_COORD_MASK[hc.y] bitand (1<<hc.x)) ≠ 0 then PLAYER_NEUTRAL else INVALID_HEX)
     map_cell_owner.push(new_col)
 for i < PLAYER_COUNT:
     if player_types[i] == PLAYER_TYPE_NONE:
@@ -321,9 +321,9 @@ for i < PLAYER_COUNT:
     let preview_mc = PLAYER_PREVIEW_MAP_COORDS[i]
     let preview_hc = transform_map_coord_to_hex(preview_mc)
     for neighbor < 6:
-        const arrow_sprite = if (player_next_moves[i] & (1<<(neighbor+6))) == 0 then ARROW_SPRITES[neighbor] else ARROW2_SPRITES[neighbor]
+        const arrow_sprite = if (player_next_moves[i] bitand (1<<(neighbor+6))) == 0 then ARROW_SPRITES[neighbor] else ARROW2_SPRITES[neighbor]
         map_set_sprite_by_hex(map, preview_hc + HEX_COORD_NEIGHBOR_OFFSETS[neighbor],
-            if (player_next_moves[i] & (1<<neighbor)) ≠ 0 then arrow_sprite else ∅)
+            if (player_next_moves[i] bitand (1<<neighbor)) ≠ 0 then arrow_sprite else ∅)
 
 disable_input = false
 
@@ -345,12 +345,12 @@ frame
 //
 bgm_update()
 let bgm_loop_measure = bgm_measure % 64
-if bgm_loop_measure == 0 || bgm_loop_measure == 8 || bgm_loop_measure == 24 || bgm_loop_measure == 32 || bgm_loop_measure == 48:
+if bgm_loop_measure == 0 or bgm_loop_measure == 8 or bgm_loop_measure == 24 or bgm_loop_measure == 32 or bgm_loop_measure == 48:
     reset_post_effects()
     let postfx = get_post_effects()
     postfx.bloom = -((bgm_measure_t-1)^3)
     set_post_effects(postfx)
-if bgm_loop_measure ≥ 24 && bgm_loop_measure < 32:
+if bgm_loop_measure ≥ 24 and bgm_loop_measure < 32:
     let postfx = get_post_effects()
     let t = bgm_measure + bgm_measure_t
     let u = (t-24) / 8
@@ -401,9 +401,9 @@ if not disable_input:
             play_sound(PLAYER_CLICK_SOUNDS[current_player])
             // change neighboring tiles to be owned by this player
             for neighbor < 6:
-                if (player_current_moves[current_player] & (1<<neighbor)) ≠ 0:
+                if (player_current_moves[current_player] bitand (1<<neighbor)) ≠ 0:
                     const neighbor_hex = player_hex + HEX_COORD_NEIGHBOR_OFFSETS[neighbor]
-                    const is_arrow2 = (player_current_moves[current_player] & (1<<(neighbor+6))) ≠ 0
+                    const is_arrow2 = (player_current_moves[current_player] bitand (1<<(neighbor+6))) ≠ 0
                     const neighbor_hex_owner = get_cell_owner_hex_coord(neighbor_hex)
                     // out-of-bounds hexes can't be flipped
                     if neighbor_hex_owner == INVALID_HEX:
@@ -435,8 +435,8 @@ for i < PLAYER_COUNT:
     draw_sprite_on_hex_map(hex_sprite.overlay_next, PLAYER_PREVIEW_MAP_COORDS[i], 1)
 // Draw current player's move around their hex
 for neighbor < 6:
-    if (player_current_moves[current_player] & (1<<neighbor)) ≠ 0:
+    if (player_current_moves[current_player] bitand (1<<neighbor)) ≠ 0:
         const arrow_hex = player_hexes[current_player] + HEX_COORD_NEIGHBOR_OFFSETS[neighbor]
-        const arrow_sprite = if (player_current_moves[current_player] & (1<<(neighbor+6))) == 0 then ARROW_SPRITES[neighbor] else ARROW2_SPRITES[neighbor]
+        const arrow_sprite = if (player_current_moves[current_player] bitand (1<<(neighbor+6))) == 0 then ARROW_SPRITES[neighbor] else ARROW2_SPRITES[neighbor]
         draw_sprite_on_hex_map(arrow_sprite.animation.frame(mode_frames),
             transform_hex_to_map_coord(arrow_hex))
