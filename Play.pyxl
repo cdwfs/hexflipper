@@ -172,11 +172,11 @@ def draw_gizmos() preserving_transform:
         // pulsing bass drum gizmo
         bass_gizmo_scale = if bgm_beat_ff && find(BD_BEATS, b) != ∅ then 80 else bass_gizmo_scale-0.5
         draw_poly({pos:50% SCREEN_SIZE, angle:π/2, scale:xy(bass_gizmo_scale,bass_gizmo_scale),
-            outline:#C08080, ...hex_poly_args})
+            outline:#FFC0C0, ...hex_poly_args})
         // pulsing snare drum gizmo
         snare_gizmo_scale = if bgm_beat_ff && find(SD_BEATS, b) != ∅ then 80 else snare_gizmo_scale-0.7
         draw_poly({pos:50% SCREEN_SIZE, angle:0, scale:xy(snare_gizmo_scale,snare_gizmo_scale),
-            outline:#80C080, ...hex_poly_args})
+            outline:#C0F0C0, ...hex_poly_args})
 
 def get_best_move_hex(player_id):
     let best_hc = PLAYER_START_HEXES[player_id]
@@ -288,10 +288,23 @@ frame
 // reactive-music stuff goes here
 //
 bgm_update()
-local:
+let bgm_loop_measure = bgm_measure % 64
+if bgm_loop_measure == 0 || bgm_loop_measure == 8 || bgm_loop_measure == 24 || bgm_loop_measure == 32 || bgm_loop_measure == 48:
+    reset_post_effects()
     let postfx = get_post_effects()
-    postfx.bloom = -((bgm_measure_t-1)^9)
+    postfx.bloom = -((bgm_measure_t-1)^3)
     set_post_effects(postfx)
+if bgm_loop_measure ≥ 24 && bgm_loop_measure < 32:
+    let postfx = get_post_effects()
+    let t = bgm_measure + bgm_measure_t
+    let u = (t-24) / 8
+    postfx.background = #0000
+    postfx.opacity = 25%
+    postfx.angle = 0.05*sin(π/2 * t)
+    if bgm_loop_measure == 31:
+        postfx.scale = 1 + 0.1*bgm_measure_t^5
+    set_post_effects(postfx)
+
 
 // Check for victory
 if player_scores[0] + player_scores[1] + player_scores[2] + player_scores[3] >= NUM_BOARD_HEXES:
