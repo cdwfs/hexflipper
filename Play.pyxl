@@ -373,11 +373,13 @@ frame
 //
 bgm_update()
 let bgm_loop_measure = bgm_measure % 64
+reset_post_effects()
 if bgm_loop_measure == 0 or bgm_loop_measure == 8 or bgm_loop_measure == 24 or bgm_loop_measure == 32 or bgm_loop_measure == 48:
-    reset_post_effects()
-    let postfx = get_post_effects()
-    postfx.bloom = -((bgm_measure_t-1)^3)
-    set_post_effects(postfx)
+    const bloom_amount = -((bgm_measure_t-1)^3)
+    if bloom_amount > 0.05:
+        let postfx = get_post_effects()
+        postfx.bloom = bloom_amount
+        set_post_effects(postfx)
 if bgm_loop_measure ≥ 24 and bgm_loop_measure < 32:
     let postfx = get_post_effects()
     let t = bgm_measure + bgm_measure_t
@@ -388,7 +390,6 @@ if bgm_loop_measure ≥ 24 and bgm_loop_measure < 32:
     if bgm_loop_measure == 31:
         postfx.scale = 1 + 0.1*bgm_measure_t^5
     set_post_effects(postfx)
-
 
 // Check for victory conditions
 if get_winner(player_scores) ≠ ∅:
