@@ -70,7 +70,7 @@
             "twitter": "@postgoodism"
         }
     },
-    "description": "Description of your game in about 100 characters.",
+    "description": "A trippy turn-based territory-claiming game for 1-4 players",
     "constants": {
         "text_color": {
             "type": "rgb",
