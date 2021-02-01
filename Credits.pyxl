@@ -9,7 +9,7 @@ def enter_menu_mode(data):
 enter
 ────────────────────────────────────────────────────────────────────────
 // This event runs when the mode is entered via set_mode() or push_mode().
-
+disable_input = false
 
 frame
 ────────────────────────────────────────────────────────────────────────
