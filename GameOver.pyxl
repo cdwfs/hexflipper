@@ -27,6 +27,7 @@ let high_score = max(player_scores[0], player_scores[1], player_scores[2], playe
 for i < 4:
     if player_scores[i] == high_score:
         player_is_winner[i] = true
+disable_input = false
 
 frame
 ────────────────────────────────────────────────────────────────────────
