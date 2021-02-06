@@ -39,7 +39,7 @@ def bgm_update():
     let prev_measure = bgm_measure
     let prev_beat_in_measure = bgm_beat_in_measure
     let status = get_audio_status(bgm_loops[0])
-    const f = status.frame
+    const f = status.now * 60
     bgm_beat = floor(f / BGM_FRAMES_PER_BEAT);
     bgm_measure = floor(f / BGM_FRAMES_PER_MEASURE)
     bgm_beat_in_measure = bgm_beat % BGM_BEATS_PER_MEASURE
