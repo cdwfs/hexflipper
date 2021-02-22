@@ -2,11 +2,6 @@ Play
 ════════════════════════════════════════════════════════════════════════
 
 /** Clone of map for the game */
-let map
-let player_types = []
-let player_hexes = []
-let player_scores = []
-let disable_input = false
 const PLAYER_COUNT = 4 // players are skipped if player_types[i] == PLAYER_TYPE_NONE
 const PLAYER_NEUTRAL = -1
 const INVALID_HEX = -2
@@ -88,7 +83,6 @@ def draw_sprite_on_hex_map(sprite, map_coord, z default 0):
     draw_sprite({sprite:sprite, pos:pos, z:z})
 
 // Per-cell owner info
-let map_cell_owner = []
 // Get the player ID of a map cell (PLAYER_NEUTRAL for unclaimed cells, INVALID_HEX for cells outside the play area)
 def get_cell_owner_map_coord(map_coord):
     return map_cell_owner[map_coord.x][map_coord.y]
@@ -106,8 +100,6 @@ def is_valid_board_hex(hex_coord):
     return get_cell_owner_hex_coord(hex_coord) ≠ INVALID_HEX
 
 // Generate a move code. Not all moves are equally likely.
-let player_current_moves = []
-let player_next_moves = []
 def generate_move_code(player_id):
     // Sweep all cells and figure out which directions a player COULD potentially
     // capture a tile, so we can favor moves containing that direction if possible.
@@ -158,8 +150,6 @@ def generate_move_code(player_id):
     return move
 
 // turn-taking
-let current_player = -1
-let current_player_move_committed = false
 def advance_to_next_player():
     // Advance current player to next non-NULL player whose score is not zero
     // (the "score is not zero" is necessary to avoid an infinite loop where a player has NO valid moves,
@@ -187,12 +177,6 @@ def at_beat0_enter_gameover(frames_left, total_frames, data):
         remove_frame_hooks_by_mode(Play)
         set_mode(GameOver, player_types, player_scores) because "Game finished"
 
-let pulsing_gizmos = []
-
-let BD_BEATS = []
-let SD_BEATS = []
-let bass_gizmo_scale = 0
-let snare_gizmo_scale = 0
 def draw_gizmos() preserving_transform:
     reset_transform()
     const sq3 = sqrt(3)
@@ -290,7 +274,6 @@ def get_best_move_hex(player_id):
             best_super_flips = super_flips
     return {hex:best_hc, flips:best_flips}
 
-let cpu_move_sequence = nil
 def move_cpu_player():
     let best_move = get_best_move_hex(current_player)
     assert(best_move.hex ≠ ∅, "player has NO best move?")
@@ -298,19 +281,42 @@ def move_cpu_player():
 def commit_cpu_player():
     current_player_move_committed = true
     
+let map = nil
+let player_types = []
+let player_hexes = []
+let player_current_moves = []
+let player_next_moves = []
+let player_scores = []
+let BD_BEATS = []
+let SD_BEATS = []
+let bass_gizmo_scale = 0
+let snare_gizmo_scale = 0
+let map_cell_owner = []
+let disable_input = false
+let current_player = 0
+let current_player_move_committed = false
+let cpu_move_sequence = nil
 
 enter(game_info)
 ────────────────────────────────────────────────────────────────────────
 
 map = clone(game_board_map)
 player_types = clone(game_info.player_types)
-set_random_seed() // default is time-based
-
-// Reset per-player data
 player_hexes = [xy(1,9), xy(9,1), xy(5,1), xy(5,9)]
 player_current_moves = [0,0,0,0]
 player_next_moves = [0,0,0,0]
 player_scores = [0,0,0,0]
+BD_BEATS = []
+SD_BEATS = []
+bass_gizmo_scale = 0
+snare_gizmo_scale = 0
+map_cell_owner = []
+disable_input = false
+current_player = 0
+current_player_move_committed = false
+cpu_move_sequence = nil
+
+set_random_seed() // default is time-based
 
 // construct bass/snare beat lists
 for beats at measure in RAW_BD_BEATS:
@@ -322,14 +328,10 @@ for beats at measure in RAW_SD_BEATS:
 
 set_transform(xy(-48, SCREEN_SIZE.y + 8), xy(1, -1))
 
-// reset turn counter
-current_player = 0
 // player 0 may not actually be valid, so advance until we find one who is
 while player_types[current_player] == PLAYER_TYPE_NONE:
     current_player += 1
-current_player_move_committed = false
 
-map_cell_owner = []
 for x < size(map):
     let new_col = []
     for y < size(map[x]):
@@ -352,8 +354,6 @@ for i < PLAYER_COUNT:
         const arrow_sprite = if (player_next_moves[i] bitand (1<<(neighbor+6))) == 0 then ARROW_SPRITES[neighbor] else ARROW2_SPRITES[neighbor]
         map_set_sprite_by_hex(map, preview_hc + HEX_COORD_NEIGHBOR_OFFSETS[neighbor],
             if (player_next_moves[i] bitand (1<<neighbor)) ≠ 0 then arrow_sprite else ∅)
-
-disable_input = false
 
 let loops = [
     {sound:bgmusic_sound, loop:true, volume:100%},

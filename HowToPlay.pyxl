@@ -1,10 +1,12 @@
 HowToPlay
 ════════════════════════════════════════════════════════════════════════
-let disable_input
 
 def enter_menu_mode(data):
     reset_post_effects()
+    remove_frame_hooks_by_mode(HowToPlay)
     set_mode(Menu) because "Returned to main menu"
+
+let disable_input = false
 
 enter
 ────────────────────────────────────────────────────────────────────────

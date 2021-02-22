@@ -1,8 +1,6 @@
 Menu
 ════════════════════════════════════════════════════════════════════════
 // Put local state for the mode here.  Declare variables with let, constants with const, and functions with def.
-let current_menu_item
-let disable_input
 const MENU_NEW_GAME = 0
 const MENU_HOWTOPLAY = 1
 const MENU_CREDITS = 2
@@ -13,13 +11,19 @@ const MENU_CURSOR_TEXT_ARGS = {font:font, text:replace("(a)", gamepad_array[0].p
 
 def enter_setup_mode(data):
     reset_post_effects()
+    remove_frame_hooks_by_mode(Menu)
     set_mode(GameSetup) because "Enter game setup"
 def enter_howtoplay_mode(data):
     reset_post_effects()
+    remove_frame_hooks_by_mode(Menu)
     set_mode(HowToPlay) because "View game rules"
 def enter_credits_mode(data):
     reset_post_effects()
+    remove_frame_hooks_by_mode(Menu)
     set_mode(Credits) because "View credits"
+
+let current_menu_item = 0
+let disable_input = false
 
 enter
 ────────────────────────────────────────────────────────────────────────
@@ -46,7 +50,6 @@ if not disable_input and gamepad_array[0].aa ≠ 0:
     if current_menu_item == MENU_NEW_GAME:
         disable_input = true
         play_sound(CURSOR_ACCEPT_SOUND)
-        let game_info = {player_count: 2}
         add_frame_hook(fade_out, enter_setup_mode, 30, ∅, {})
     else if current_menu_item == MENU_HOWTOPLAY:
         play_sound(CURSOR_ACCEPT_SOUND)
