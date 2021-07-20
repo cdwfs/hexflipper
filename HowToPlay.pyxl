@@ -26,20 +26,27 @@ if not disable_input:
 
 const text_args = {font:font, x_align:"left", y_align:"top", wrap_width:SCREEN_SIZE.x, markup:true, color:#c}
 let line_y = 0
-line_y += draw_text({text:"The goal of the game is to capture as many hexes as possible.\n ", pos:xy(0, line_y),
+draw_text({text:"The goal of the game is to capture as many hexes as possible.\n ", pos:xy(0, line_y),
     text_size:max(0,mode_frames/3), ...text_args}).y
-line_y += draw_text({text:"Each turn, a player may flip 1 or more tiles adjacent to one of their existing tiles.", pos:xy(0, line_y),
+line_y += font.line_height
+draw_text({text:"Each turn, a player may flip 1 or more tiles adjacent to one of their\nexisting tiles.", pos:xy(0, line_y),
     text_size:max(0,mode_frames/3), ...text_args}).y
-line_y += draw_text({text:"A preview of each player's next move is shown outside the board.", pos:xy(0, line_y),
+line_y += 2*font.line_height
+draw_text({text:"A preview of each player's next move is shown outside the board.", pos:xy(0, line_y),
     text_size:max(0,mode_frames/3), ...text_args}).y
-line_y += draw_text({text:"Normal moves ({color:#f white arrows}) can only flip grey, neutral tiles.", pos:xy(0, line_y),
+line_y += font.line_height
+draw_text({text:"Normal moves ({color:#f white arrows}) can only flip grey, neutral tiles.", pos:xy(0, line_y),
     text_size:max(0,mode_frames/3), ...text_args}).y
-line_y += draw_text({text:"A {color:#f00 red arrow} can flip tiles belonging to other players.", pos:xy(0, line_y),
+line_y += font.line_height
+draw_text({text:"A {color:#f00 red arrow} can flip tiles belonging to other players.", pos:xy(0, line_y),
     text_size:max(0,mode_frames/3), ...text_args}).y
-line_y += draw_text({text:"Once all neutral tiles are claimed, the player who has claimed the most tiles wins!", pos:xy(0, line_y),
+line_y += font.line_height
+draw_text({text:"Once all neutral tiles are claimed, the player who has claimed the most tiles wins!", pos:xy(0, line_y),
     text_size:max(0,mode_frames/3), ...text_args}).y
+line_y += font.line_height
 draw_text({font:font, pos:xy(50% SCREEN_SIZE.x, 90% SCREEN_SIZE.y),
     text:replace("(b) Return To Menu", gamepad_array[0].prompt), color:#f, x_align:"center"})
+line_y += font.line_height
 
 leave
 ────────────────────────────────────────────────────────────────────────

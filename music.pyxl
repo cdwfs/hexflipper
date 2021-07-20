@@ -61,9 +61,12 @@ def bgm_draw_debug(z default 0) preserving_transform:
     const BGM_DEBUG_TEXT_ARGS = {font:font, color:#f, x_align:"left", y_align:"top", z:z}
     const MAX_BAR_WIDTH = 40
     const BAR_HEIGHT = 5
-    bb += draw_text({text:"Beat: " + bgm_beat, pos:xy(0,0) + bb.y, ...BGM_DEBUG_TEXT_ARGS})
-    bb += draw_text({text:"Measure: " + bgm_measure, pos:xy(0,0+bb.y), ...BGM_DEBUG_TEXT_ARGS})
-    bb += draw_text({text:"BIM: " + bgm_beat_in_measure, pos:xy(0,0+bb.y), ...BGM_DEBUG_TEXT_ARGS})
+    draw_text({text:"Beat: " + bgm_beat, pos:xy(0,0) + bb.y, ...BGM_DEBUG_TEXT_ARGS})
+    bb.y += font.line_height
+    draw_text({text:"Measure: " + bgm_measure, pos:xy(0,0+bb.y), ...BGM_DEBUG_TEXT_ARGS})
+    bb.y += font.line_height
+    draw_text({text:"BIM: " + bgm_beat_in_measure, pos:xy(0,0+bb.y), ...BGM_DEBUG_TEXT_ARGS})
+    bb.y += font.line_height
     draw_corner_rect({corner:xy(0,bb.y), size:xy(MAX_BAR_WIDTH, BAR_HEIGHT), outline:#0ff, color:rgba(0,0,0,0), z:z})
     draw_corner_rect({corner:xy(0,bb.y), size:xy(bgm_beat_t * MAX_BAR_WIDTH, BAR_HEIGHT), color:#0ff, z:z})
     draw_corner_rect({corner:xy(0,bb.y+2*BAR_HEIGHT), size:xy(MAX_BAR_WIDTH, BAR_HEIGHT), outline:#0ff, color:rgba(0,0,0,0), z:z})
