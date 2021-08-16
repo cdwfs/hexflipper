@@ -8,8 +8,6 @@ const PLAYER_SPRITES = [
     ]
     
 def enter_menu_mode(data):
-    reset_post_effects()
-    remove_frame_hooks_by_mode(GameSetup)
     set_mode(Menu) because "Returned to main menu"
 
 // Need a special fade-out function here, since we don't know exactly how many frames
@@ -28,10 +26,7 @@ def fade_out_and_enter_game(frames_left, total_frames, data):
             entering_game = true
             bgm_set_volumes([0%,100%])
         else:
-            reset_post_effects()
             let game_info = {player_types:player_types}
-            // Since this hook runs forever, make sure to remove it now that we're done!
-            remove_frame_hooks_by_mode(GameSetup)
             set_mode(Play, game_info) because "Started game"
 
 let disable_input = false
@@ -108,5 +103,6 @@ draw_text({font:font, pos:xy(25% SCREEN_SIZE.x, 90% SCREEN_SIZE.y),
 
 leave
 ────────────────────────────────────────────────────────────────────────
-// This event runs just before leaving for another mode by set_mode() or pop_mode().
+reset_post_effects()
+remove_frame_hooks_by_mode(get_mode())
 

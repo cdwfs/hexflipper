@@ -172,9 +172,6 @@ def advance_to_next_player():
 // it will take to reach the target point in the music.
 def at_beat0_enter_gameover(frames_left, total_frames, data):
     if bgm_beat_in_measure == 0 and bgm_beat_ff:
-        reset_post_effects()
-        // Since this hook runs forever, make sure to remove it now that we're done!
-        remove_frame_hooks_by_mode(Play)
         set_mode(GameOver, player_types, player_scores) because "Game finished"
 
 def draw_gizmos() preserving_transform:
@@ -469,3 +466,8 @@ for neighbor < 6:
         const arrow_sprite = if (player_current_moves[current_player] bitand (1<<(neighbor+6))) == 0 then ARROW_SPRITES[neighbor] else ARROW2_SPRITES[neighbor]
         draw_sprite_on_hex_map(arrow_sprite.animation.frame(mode_frames),
             transform_hex_to_map_coord(arrow_hex))
+
+leave
+────────────────────────────────────────────────────────────────────────
+reset_post_effects()
+remove_frame_hooks_by_mode(get_mode())

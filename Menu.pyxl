@@ -10,16 +10,10 @@ const MENU_ITEM_TEXT_ARGS = {font:font, color:#f, x_align:"left"}
 const MENU_CURSOR_TEXT_ARGS = {font:font, text:replace("(a)", gamepad_array[0].prompt), x_align:"right", color:#f}
 
 def enter_setup_mode(data):
-    reset_post_effects()
-    remove_frame_hooks_by_mode(Menu)
     set_mode(GameSetup) because "Enter game setup"
 def enter_howtoplay_mode(data):
-    reset_post_effects()
-    remove_frame_hooks_by_mode(Menu)
     set_mode(HowToPlay) because "View game rules"
 def enter_credits_mode(data):
-    reset_post_effects()
-    remove_frame_hooks_by_mode(Menu)
     set_mode(Credits) because "View credits"
 
 let current_menu_item = 0
@@ -27,7 +21,6 @@ let disable_input = false
 
 enter
 ────────────────────────────────────────────────────────────────────────
-// This event runs when the mode is entered via set_mode() or push_mode().
 current_menu_item = MENU_NEW_GAME
 disable_input = false
 if not bgm_is_playing():
@@ -69,5 +62,5 @@ for menu_item at i in MENU_ITEMS:
 
 leave
 ────────────────────────────────────────────────────────────────────────
-// This event runs just before leaving for another mode by set_mode() or pop_mode().
-
+reset_post_effects()
+remove_frame_hooks_by_mode(get_mode())

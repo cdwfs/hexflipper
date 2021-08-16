@@ -1,8 +1,6 @@
 Credits
 ════════════════════════════════════════════════════════════════════════
 def enter_menu_mode(data):
-    reset_post_effects()
-    remove_frame_hooks_by_mode(Credits)
     set_mode(Menu) because "Returned to main menu"
 
 let disable_input = false
@@ -39,5 +37,5 @@ line_y += font.line_height
 
 leave
 ────────────────────────────────────────────────────────────────────────
-// This event runs just before leaving for another mode by set_mode() or pop_mode().
-
+reset_post_effects()
+remove_frame_hooks_by_mode(get_mode())
