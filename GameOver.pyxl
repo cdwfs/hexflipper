@@ -61,7 +61,7 @@ for i < 4:
     let score_color = if player_is_winner[i] then #ff0 else #f
     draw_text({font:font, pos:p+xy(0,20), text:player_scores[i], color:score_color, x_align:"center", y_align:"top"})
     if player_is_winner[i]:
-        let t = (mode_frames % 60) / 60
+        let t = (mode_frames mod 60) / 60
         draw_text({font:font, pos:p+xy(0,-20), text:"WINNER!", color:hsv(t,1,1), x_align:"center", y_align:"bottom"})
     
 draw_text({font:font, pos:xy(50% SCREEN_SIZE.x, 90% SCREEN_SIZE.y),

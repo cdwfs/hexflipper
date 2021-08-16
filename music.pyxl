@@ -42,9 +42,9 @@ def bgm_update():
     const f = status.now * 60
     bgm_beat = floor(f / BGM_FRAMES_PER_BEAT);
     bgm_measure = floor(f / BGM_FRAMES_PER_MEASURE)
-    bgm_beat_in_measure = bgm_beat % BGM_BEATS_PER_MEASURE
-    bgm_beat_f = f % BGM_FRAMES_PER_BEAT
-    bgm_measure_f = f % BGM_FRAMES_PER_MEASURE
+    bgm_beat_in_measure = bgm_beat mod BGM_BEATS_PER_MEASURE
+    bgm_beat_f = f mod BGM_FRAMES_PER_BEAT
+    bgm_measure_f = f mod BGM_FRAMES_PER_MEASURE
     bgm_beat_t = bgm_beat_f / BGM_FRAMES_PER_BEAT
     bgm_measure_t = bgm_measure_f / BGM_FRAMES_PER_MEASURE
     bgm_beat_ff = (bgm_beat != prev_beat)

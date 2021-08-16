@@ -56,12 +56,12 @@ if not disable_input:
     if gamepad_array[0].xx:
         play_sound(CURSOR_MOVE_SOUND)
         const max_player_count = 4
-        current_player = (current_player + max_player_count + gamepad_array[0].xx) % max_player_count
+        current_player = (current_player + max_player_count + gamepad_array[0].xx) mod max_player_count
     // Move cursor up/down to choose the type of the current player
     if gamepad_array[0].yy:
         play_sound(CURSOR_MOVE_SOUND)
         const player_type_count = 3
-        player_types[current_player] = (player_types[current_player] + player_type_count + gamepad_array[0].yy) % player_type_count
+        player_types[current_player] = (player_types[current_player] + player_type_count + gamepad_array[0].yy) mod player_type_count
     // Push A to start the game
     if gamepad_array[0].aa:
         // Must have at least two players

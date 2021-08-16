@@ -154,9 +154,9 @@ def advance_to_next_player():
     // Advance current player to next non-NULL player whose score is not zero
     // (the "score is not zero" is necessary to avoid an infinite loop where a player has NO valid moves,
     // but the board is not yet complete)
-    current_player = (current_player+1) % 4
+    current_player = (current_player+1) mod 4
     while player_types[current_player] == PLAYER_TYPE_NONE or player_scores[current_player] == 0:
-        current_player = (current_player+1) % 4
+        current_player = (current_player+1) mod 4
     // move current players next move to their current move and generate a new next move
     player_current_moves[current_player] = player_next_moves[current_player]
     player_next_moves[current_player] = generate_move_code(current_player)
@@ -183,12 +183,12 @@ def draw_gizmos() preserving_transform:
     const verts = [xy(0,2), xy(-sq3, 1), xy(-sq3,-1), xy(0,-2), xy(sq3,-1), xy(sq3,1)]
     const hex_poly_args = {vertex_array:verts, z:-10,}
     const t = bgm_measure + bgm_measure_t
-    const b = bgm_beat % (64*12)
+    const b = bgm_beat mod (64*12)
     local:
         // Spinning gizmo
         const theta = clamp((3*bgm_measure_t)^3,0,1) * pi/3 + π/2
         const p = 50% SCREEN_SIZE + xy(40*sin(π*t), 0)
-        const c = hsv(t % 1,1,1)
+        const c = hsv(t mod 1,1,1)
         draw_poly({pos:p, scale:xy(60,60), angle:theta, outline:c, ...hex_poly_args})
     local:
         // pulsing bass drum gizmo
@@ -372,7 +372,7 @@ frame
 // reactive-music stuff goes here
 //
 bgm_update()
-let bgm_loop_measure = bgm_measure % 64
+let bgm_loop_measure = bgm_measure mod 64
 reset_post_effects()
 if bgm_loop_measure == 0 or bgm_loop_measure == 8 or bgm_loop_measure == 24 or bgm_loop_measure == 32 or bgm_loop_measure == 48:
     const bloom_amount = -((bgm_measure_t-1)^3)
