@@ -126,7 +126,7 @@ def map_set_sprite_by_hex(map, hex_coord, sprite):
     return set_map_sprite(map, transform_hex_to_map_coord(nearest_hex(hex_coord)), sprite)
 
 /** Draws layer 0 of the map, assuming 32x32 sprites */
-def draw_hex_map(map, animate default true):
+def draw_hex_map(map):
     // Avoid allocation while iterating over map cells
     const pos = xy(0, 0)
     
@@ -135,9 +135,6 @@ def draw_hex_map(map, animate default true):
         for y < size(array):
             let sprite = array[y]
             if sprite:
-                // Animated sprites
-                if animate and sprite.animation: sprite = sprite.animation.frame(mode_frames)
-                    
                 pos.x = MUL(HEX_WIDTH, MAD(½, y bitand 1, x))
                 pos.y = MUL(HEX_HEIGHT_75, y)
                 draw_sprite(sprite, pos)

@@ -58,29 +58,38 @@ const HEX_COORD_NEIGHBOR_OFFSETS = [
     xy(-1,+0), // W
     xy(-1,+1), // NW
     ]
-const ARROW_SPRITES = [
-    hex_sprite.arrow_ne[0],
-    hex_sprite.arrow_e[0],
-    hex_sprite.arrow_se[0],
-    hex_sprite.arrow_sw[0],
-    hex_sprite.arrow_w[0],
-    hex_sprite.arrow_nw[0],
+const ARROW_SOLID_SPRITES = [
+    arrows_sprite.solid_nw[0], // NE
+    arrows_sprite.solid_w[0],  // E
+    arrows_sprite.solid_nw[0], // SE
+    arrows_sprite.solid_nw[0], // SW
+    arrows_sprite.solid_w[0],  // W
+    arrows_sprite.solid_nw[0], // NW
     ]
-const ARROW2_SPRITES = [
-    hex_sprite.arrow2_ne[0],
-    hex_sprite.arrow2_e[0],
-    hex_sprite.arrow2_se[0],
-    hex_sprite.arrow2_sw[0],
-    hex_sprite.arrow2_w[0],
-    hex_sprite.arrow2_nw[0],
+const ARROW_OUTLINE_SPRITES = [
+    arrows_sprite.outline_nw[0], // NE
+    arrows_sprite.outline_w[0],  // E
+    arrows_sprite.outline_nw[0], // SE
+    arrows_sprite.outline_nw[0], // SW
+    arrows_sprite.outline_w[0],  // W
+    arrows_sprite.outline_nw[0], // NW
+    ]
+const ARROW_SPRITE_SCALES = [
+    xy(-1,+1), // NE
+    xy(-1,+1), // E
+    xy(-1,-1), // SE
+    xy(+1,-1), // SW
+    xy(+1,+1), // W
+    xy(+1,+1), // NW
     ]
 
 // Draw a sprite at the provided map coordinates
-def draw_sprite_on_hex_map(sprite, map_coord, z default 0):
+def draw_sprite_on_hex_map(sprite, map_coord, z default 0, scale default xy(1,1), override_color default rgba(0,0,0,0), override_blend default "lerp"):
     let pos = xy(
         MUL(HEX_WIDTH, MAD(½, map_coord.y bitand 1, map_coord.x)),
         MUL(HEX_HEIGHT_75, map_coord.y))
-    draw_sprite({sprite:sprite, pos:pos, z:z})
+    draw_sprite({sprite:sprite, pos:pos, z:z, scale:scale, override_color:override_color,
+        override_blend:override_blend})
 
 // Per-cell owner info
 // Get the player ID of a map cell (PLAYER_NEUTRAL for unclaimed cells, INVALID_HEX for cells outside the play area)
@@ -163,10 +172,6 @@ def advance_to_next_player():
     // Update player "next move" previews
     let preview_mc = PLAYER_PREVIEW_MAP_COORDS[current_player]
     let preview_hc = transform_map_coord_to_hex(preview_mc)
-    for neighbor < 6:
-        const arrow_sprite = if (player_next_moves[current_player] bitand (1<<(neighbor+6))) == 0 then ARROW_SPRITES[neighbor] else ARROW2_SPRITES[neighbor]
-        map_set_sprite_by_hex(map, preview_hc + HEX_COORD_NEIGHBOR_OFFSETS[neighbor],
-            if (player_next_moves[current_player] bitand (1<<neighbor)) ≠ 0 then arrow_sprite else ∅)
 
 // Need a special fade-out function here, since we don't know exactly how many frames
 // it will take to reach the target point in the music.
@@ -246,7 +251,7 @@ def get_best_move_hex(player_id):
         for neighbor < 6:
             if (move bitand (1<<neighbor)) ≠ 0:
                 const neighbor_hex = hc + HEX_COORD_NEIGHBOR_OFFSETS[neighbor]
-                const is_arrow2 = (move bitand (1<<(neighbor+6))) ≠ 0
+                const arrow_can_capture = (move bitand (1<<(neighbor+6))) ≠ 0
                 const neighbor_hex_owner = get_cell_owner_hex_coord(neighbor_hex)
                 // out-of-bounds hexes can't be flipped
                 if neighbor_hex_owner == INVALID_HEX:
@@ -256,7 +261,7 @@ def get_best_move_hex(player_id):
                     flips += 1
                     new_scores[player_id] += 1
                 // "super" arrows can flip any tiles
-                else if is_arrow2 and neighbor_hex_owner != player_id:
+                else if arrow_can_capture and neighbor_hex_owner != player_id:
                     flips += 1
                     super_flips += 1
                     new_scores[player_id] += 1
@@ -344,13 +349,6 @@ for i < PLAYER_COUNT:
     // random starting moves for each player
     player_current_moves[i] = generate_move_code(i)
     player_next_moves[i] = generate_move_code(i)
-    // Initialize each player's "next move" preview
-    let preview_mc = PLAYER_PREVIEW_MAP_COORDS[i]
-    let preview_hc = transform_map_coord_to_hex(preview_mc)
-    for neighbor < 6:
-        const arrow_sprite = if (player_next_moves[i] bitand (1<<(neighbor+6))) == 0 then ARROW_SPRITES[neighbor] else ARROW2_SPRITES[neighbor]
-        map_set_sprite_by_hex(map, preview_hc + HEX_COORD_NEIGHBOR_OFFSETS[neighbor],
-            if (player_next_moves[i] bitand (1<<neighbor)) ≠ 0 then arrow_sprite else ∅)
 
 let loops = [
     {sound:bgmusic_sound, loop:true, volume:100%},
@@ -429,7 +427,7 @@ if not disable_input:
             for neighbor < 6:
                 if (player_current_moves[current_player] bitand (1<<neighbor)) ≠ 0:
                     const neighbor_hex = player_hex + HEX_COORD_NEIGHBOR_OFFSETS[neighbor]
-                    const is_arrow2 = (player_current_moves[current_player] bitand (1<<(neighbor+6))) ≠ 0
+                    const arrow_can_capture = (player_current_moves[current_player] bitand (1<<(neighbor+6))) ≠ 0
                     const neighbor_hex_owner = get_cell_owner_hex_coord(neighbor_hex)
                     // out-of-bounds hexes can't be flipped
                     if neighbor_hex_owner == INVALID_HEX:
@@ -439,7 +437,7 @@ if not disable_input:
                         set_cell_owner_hex_coord(neighbor_hex, current_player)
                         player_scores[current_player] += 1
                     // "super" arrows can flip other player's tiles
-                    else if is_arrow2 and neighbor_hex_owner != current_player:
+                    else if arrow_can_capture and neighbor_hex_owner != current_player:
                         player_scores[neighbor_hex_owner] -= 1
                         set_cell_owner_hex_coord(neighbor_hex, current_player)
                         player_scores[current_player] += 1
@@ -459,13 +457,38 @@ for i < PLAYER_COUNT:
     // Draw preview hexes for active players
     draw_sprite_on_hex_map(PLAYER_TERRITORY_SPRITES[i], PLAYER_PREVIEW_MAP_COORDS[i], 1)
     draw_sprite_on_hex_map(hex_sprite.overlay_next, PLAYER_PREVIEW_MAP_COORDS[i], 1)
-// Draw current player's move around their hex
+    // Draw arrows around preview hex
+    let preview_mc = PLAYER_PREVIEW_MAP_COORDS[i]
+    let preview_hc = transform_map_coord_to_hex(preview_mc)
+    for neighbor < 6:
+        if (player_next_moves[i] bitand (1<<neighbor)) ≠ 0:
+            const arrow_can_capture = (player_next_moves[i] bitand (1<<(neighbor+6))) ≠ 0
+            const arrow_sprite = ARROW_SOLID_SPRITES[neighbor]
+            let arrow_hex = preview_hc + HEX_COORD_NEIGHBOR_OFFSETS[neighbor]
+            let override_color = if arrow_can_capture then hsv((mode_frames mod 72)/72,1,1) else rgba(0,0,0,0)
+            let override_blend = if arrow_can_capture then "multiply" else "lerp"
+            draw_sprite_on_hex_map(arrow_sprite.animation.frame(mode_frames),
+                transform_hex_to_map_coord(arrow_hex), 0, ARROW_SPRITE_SCALES[neighbor], override_color, override_blend)
+// Draw current player's move around their hex on the map itself
 for neighbor < 6:
     if (player_current_moves[current_player] bitand (1<<neighbor)) ≠ 0:
         const arrow_hex = player_hexes[current_player] + HEX_COORD_NEIGHBOR_OFFSETS[neighbor]
-        const arrow_sprite = if (player_current_moves[current_player] bitand (1<<(neighbor+6))) == 0 then ARROW_SPRITES[neighbor] else ARROW2_SPRITES[neighbor]
+        const arrow_can_capture = (player_current_moves[current_player] bitand (1<<(neighbor+6))) ≠ 0
+        let arrow_sprite = ARROW_SOLID_SPRITES[neighbor]
+        let override_color = if arrow_can_capture then hsv((mode_frames mod 72)/72,1,1) else rgba(0,0,0,0)
+        let override_blend = if arrow_can_capture then "multiply" else lerp
+        // Replace arrows with outlines if they'd have no effect
+        const player_hex_owner = get_cell_owner_hex_coord(player_hexes[current_player])
+        const neighbor_hex = player_hexes[current_player] + HEX_COORD_NEIGHBOR_OFFSETS[neighbor]
+        const neighbor_hex_owner = get_cell_owner_hex_coord(neighbor_hex)
+        const not_on_own_cell = player_hex_owner ≠ current_player
+        const target_is_outside_map = neighbor_hex_owner == INVALID_HEX
+        const target_is_own_cell = neighbor_hex_owner == current_player
+        const target_is_other_player_without_capture = neighbor_hex_owner ≠ PLAYER_NEUTRAL and neighbor_hex_owner ≠ current_player and not arrow_can_capture
+        if not_on_own_cell or target_is_outside_map or target_is_own_cell or target_is_other_player_without_capture:
+            arrow_sprite = ARROW_OUTLINE_SPRITES[neighbor]
         draw_sprite_on_hex_map(arrow_sprite.animation.frame(mode_frames),
-            transform_hex_to_map_coord(arrow_hex))
+            transform_hex_to_map_coord(arrow_hex), 0, ARROW_SPRITE_SCALES[neighbor], override_color, override_blend)
 
 leave
 ────────────────────────────────────────────────────────────────────────
