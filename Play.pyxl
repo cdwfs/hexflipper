@@ -297,7 +297,9 @@ let map_cell_owner = []
 let disable_input = false
 let current_player = 0
 let current_player_move_committed = false
-let cpu_move_sequence = nil
+let cpu_move_sequence = ∅
+let invalid_move_message_f = -1000
+
 
 enter(game_info)
 ────────────────────────────────────────────────────────────────────────
@@ -316,7 +318,9 @@ map_cell_owner = []
 disable_input = false
 current_player = 0
 current_player_move_committed = false
-cpu_move_sequence = nil
+cpu_move_sequence = ∅
+invalid_move_message_f = -1000
+
 
 set_random_seed() // default is time-based
 
@@ -415,6 +419,7 @@ if not disable_input:
         // Can only flip on a cell you own
         if get_cell_owner_hex_coord(player_hex) ≠ current_player:
             play_sound(blip_12_sound) // error
+            invalid_move_message_f = mode_frames
         else:
             // successful flip
             play_sound(PLAYER_CLICK_SOUNDS[current_player])
@@ -442,6 +447,12 @@ if not disable_input:
 // draw things
 draw_hex_map(map)
 draw_gizmos()
+preserving_transform:
+    reset_transform()
+    const frames_since_error = min(mode_frames - invalid_move_message_f, 1000)
+    let invalid_move_message_y = 50% SCREEN_SIZE.y + pow(frames_since_error/10, 2)
+    draw_text({font:font, text:"Select a hex you control!", z:10, color:#f00, shadow:#000,
+        pos:xy(50% SCREEN_SIZE.x,invalid_move_message_y), x_align:"center", y_align:"top"})
 //bgm_draw_debug(10)
 
 for i < PLAYER_COUNT:
