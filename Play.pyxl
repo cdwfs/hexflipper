@@ -355,11 +355,6 @@ let loops = [
     ]
 bgm_start(loops)
 
-leave
-────────────────────────────────────────────────────────────────────────
-bgm_stop()
-reset_transform()
-
 frame
 ────────────────────────────────────────────────────────────────────────
 
@@ -492,5 +487,6 @@ for neighbor < 6:
 
 leave
 ────────────────────────────────────────────────────────────────────────
+reset_transform()
 reset_post_effects()
 remove_frame_hooks_by_mode(get_mode())

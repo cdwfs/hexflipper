@@ -22,6 +22,7 @@ player_types = []
 player_scores = []
 player_is_winner = [false,false,false,false]
 
+bgm_stop()
 play_sound({sound:bgmusic_ending_sound, volume:100%})
 player_types = in_player_types
 player_scores = in_player_scores
