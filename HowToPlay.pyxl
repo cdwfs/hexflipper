@@ -18,7 +18,7 @@ bgm_update()
 if not disable_input:
     if gamepad_array[0].bb != 0:
         disable_input = true
-        play_sound(CURSOR_ACCEPT_SOUND)
+        play_sound(CURSOR_BACK_SOUND)
         add_frame_hook(fade_out, enter_menu_mode, 30, ∅, {})
         
 

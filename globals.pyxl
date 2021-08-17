@@ -1,5 +1,6 @@
-const CURSOR_MOVE_SOUND = {sound:blip_05_sound, volume: 100%}
-const CURSOR_ACCEPT_SOUND = {sound:blip_12_sound, volume: 100%}
+const CURSOR_MOVE_SOUND = {sound:move_sound, volume: 50%}
+const CURSOR_BACK_SOUND = {sound:back_sound, volume: 50%}
+const CURSOR_ACCEPT_SOUND = {sound:select_sound, volume: 50%}
 
 const PLAYER_TYPE_NONE = 0
 const PLAYER_TYPE_HUMAN = 1
