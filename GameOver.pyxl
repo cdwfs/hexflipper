@@ -1,11 +1,13 @@
 GameOver
 ════════════════════════════════════════════════════════════════════════
 const PLAYER_SPRITES = [
+    hex_sprite.territory_p3,
     hex_sprite.territory_p1,
     hex_sprite.territory_p2,
-    hex_sprite.territory_p3,
     hex_sprite.territory_p4,
     ]
+const PLAYER_LABELS = ["P3", "P1", "P2", "P4"]
+const PLAYER_INDICES = [2,0,1,3]
 
 def enter_menu_mode(data):
     set_mode(Menu) because "Returned to main menu"
@@ -46,21 +48,22 @@ draw_text({font:font, text:"Game Over!", pos:xy(50% SCREEN_SIZE.x, 25% SCREEN_SI
     
 // Draw representations of the current players
 for i < 4:
+    let player_index = PLAYER_INDICES[i]
     let p = xy((2*i+1)*SCREEN_SIZE.x/8, 50% SCREEN_SIZE.y)
     const label_text_args = {font:font, pos:p, color:#0, x_align:"center", y_align:"center", z:1}
-    if player_types[i] == PLAYER_TYPE_NONE:
+    if player_types[player_index] == PLAYER_TYPE_NONE:
         // Skip nonexistent players
         continue
-    else if player_types[i] == PLAYER_TYPE_HUMAN:
+    else if player_types[player_index] == PLAYER_TYPE_HUMAN:
         draw_sprite({sprite:PLAYER_SPRITES[i], pos:p})
-        draw_text({text:"P"+(i+1), ...label_text_args})
-    else if player_types[i] == PLAYER_TYPE_CPU:
-        draw_sprite({sprite:PLAYER_SPRITES[i], pos:xy((2*i+1)*SCREEN_SIZE.x/8, 50% SCREEN_SIZE.y)})
+        draw_text({text:PLAYER_LABELS[i], ...label_text_args})
+    else if player_types[player_index] == PLAYER_TYPE_CPU:
+        draw_sprite({sprite:PLAYER_SPRITES[i], pos:p})
         draw_text({text:"CPU", ...label_text_args})
-    let score_color = if player_is_winner[i] then #ff0 else #f
-    draw_text({font:font, pos:p+xy(0,20), text:player_scores[i], color:score_color, x_align:"center", y_align:"top"})
-    if player_is_winner[i]:
-        let t = (mode_frames mod 60) / 60
+    let score_color = if player_is_winner[player_index] then #ff0 else #f
+    draw_text({font:font, pos:p+xy(0,20), text:player_scores[PLAYER_INDICES[i]], color:score_color, x_align:"center", y_align:"top"})
+    if player_is_winner[player_index]:
+        let t = (mode_frames mod 72) / 72
         draw_text({font:font, pos:p+xy(0,-20), text:"WINNER!", color:hsv(t,1,1), x_align:"center", y_align:"bottom"})
     
 draw_text({font:font, pos:xy(50% SCREEN_SIZE.x, 90% SCREEN_SIZE.y),
