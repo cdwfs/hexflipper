@@ -104,6 +104,11 @@
             "type": "number",
             "value": 0.1,
             "description": "bias applied to the super-arrow chance for each spot below #1 the player is"
+        },
+        "DEBUG_DEV_MODE": {
+            "type": "boolean",
+            "value": false,
+            "description": "If true, enables various developer conveniences"
         }
     },
     "screenshot_tag": "HexFlipper",
