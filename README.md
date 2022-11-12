@@ -1,3 +1,5 @@
+**NOTE:** This game is now included in the main [quadplay✜](https://github.com/morgan3d/quadplay) repository. This repository will receive no further changes.
+
 # hexflipper
 
 ![image](https://raw.githubusercontent.com/cdwfs/hexflipper/trunk/hexflipper-preview.gif)
